@@ -161,6 +161,8 @@ def doStuff():
     ZenCounter.setHeuresCreuses(HCZenFlex)
     ZenCounter.setPricing({"HP":{"BLEU":ZenHPEco,"BLANC":ZenHPEco,"ROUGE":ZenHPSobriete},"HC":{"BLEU":ZenHCEco,"BLANC":ZenHCEco,"ROUGE":ZenHCSobriete}})
 
+    priceCounters = [baseCounter, tempoCounter, HCHPCounter, ZenCounter]
+
     # Ouvrir le fichier CSV de consommation en mode lecture
     with open(chemin_csv, newline='', encoding='utf-8-sig') as csvfile:
         lecteur = csv.reader(csvfile, delimiter=';')
@@ -183,13 +185,10 @@ def doStuff():
                 jour = date_heure[:10]
                 # Extraire l'heure (ex: "23:59")
                 heure = date_heure[11:]
+                for counter in priceCounters:
+                    counter.addConsummatedHour(consommation,heure,jour)
 
-                baseCounter.addConsummatedHour(consommation,heure,jour)
-                HCHPCounter.addConsummatedHour(consommation,heure,jour)
-                tempoCounter.addConsummatedHour(consommation,heure,jour)
-                ZenCounter.addConsummatedHour(consommation,heure,jour)
-
-
+        #Ici, on rattrape sur l'ancien algo :)
         simulBase = baseCounter.getTotal()
         simulHCHP = HCHPCounter.getTotal()
         simulTempo = tempoCounter.getTotal()
