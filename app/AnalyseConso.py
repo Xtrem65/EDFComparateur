@@ -45,7 +45,7 @@ def doStuff():
     # Chemin vers le fichier CSV. Ce fichier est à récupérer sur le site d'Enedis, en ayant activé 
     # l'option "Historique de consommation" avec le pas demi-horaire dans l'espace client.
     # Il faut que le fichier soit sur 1 an (pas de contrôle sur ce point, mais le résultat ne serait pas significatif)
-    chemin_csv = "data/consoexemple.csv"
+    chemin_csv = "../data/consoexemple.csv"
 
     #################################################################################################
     #
@@ -113,7 +113,7 @@ def doStuff():
     # Généré à la main depuis les fichiers "Calendrier TEMPO" dispos sur le site de RTE :
     # https://www.rte-france.com/eco2mix/telecharger-les-indicateurs
     # Ouvrir le fichier CSV en mode lecture
-    with open("data/calBAR.csv", newline='') as csvfile:
+    with open("../data/calBAR.csv", newline='') as csvfile:
         # Créer un objet lecteur CSV
         lecteur_csv = csv.reader(csvfile, delimiter=';')
         
@@ -128,7 +128,7 @@ def doStuff():
             CalBar[date_obj.strftime("%Y-%m-%d")] = ligne[1]
 
 
-    with open("data/calZen.csv", newline='') as csvfile:
+    with open("../data/calZen.csv", newline='') as csvfile:
         # Créer un objet lecteur CSV
         lecteur_csv = csv.reader(csvfile, delimiter=';')
         
