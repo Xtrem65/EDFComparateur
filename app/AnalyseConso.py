@@ -24,6 +24,7 @@
 
 import csv
 from datetime import datetime, timedelta
+from aboCounter import AboCounter
 
 def doStuff():
     #################################################################################################
@@ -143,11 +144,25 @@ def doStuff():
             CalZen[date_obj.strftime("%Y-%m-%d")] = ligne[1]
 
 
+    baseCounter = AboCounter("Base")
+    baseCounter.setPricing({"HP":BleuBase})
+
+    tempoCounter = AboCounter("Tempo")
+    tempoCounter.setCalendrierJours(CalBar)
+    tempoCounter.setHeuresCreuses(HC)
+    tempoCounter.setPricing({"HP":{"BLEU":TempoBleuHP,"BLANC":TempoBlancHP,"ROUGE":TempoRougeHP},"HC":{"BLEU":TempoBleuHC,"BLANC":TempoBlancHC,"ROUGE":TempoRougeHC}})
+    
+    HCHPCounter = AboCounter("HCHP")
+    HCHPCounter.setPricing({"HP":BleuHP, "HC":BleuHC})
+    HCHPCounter.setHeuresCreuses(HC)
+
+    ZenCounter = AboCounter("Zen")
+    ZenCounter.setCalendrierJours(CalZen)
     # Ouvrir le fichier CSV de consommation en mode lecture
     with open(chemin_csv, newline='', encoding='utf-8-sig') as csvfile:
         lecteur = csv.reader(csvfile, delimiter=';')
         i = 0
-        for ligne in lecteur:      
+        for ligne in lecteur:
             # Gestion simpliste de l'entête du CSV : si le 5e caractère de la ligne n'est pas un tiret (donc une date), ignorer la ligne
             if ligne[0][4] == "-":
                 i += 1
@@ -166,6 +181,10 @@ def doStuff():
                 # Extraire l'heure (ex: "23:59")
                 heure = date_heure[11:]
 
+                baseCounter.addConsummatedHour(consommation,heure,jour)
+                HCHPCounter.addConsummatedHour(consommation,heure,jour)
+                tempoCounter.addConsummatedHour(consommation,heure,jour)
+
                 # Voir si le jour est bleu, blanc ou rouge
                 if jour in CalBar:
                     couleur = CalBar[jour]
@@ -177,14 +196,11 @@ def doStuff():
                         jour = (datetime.strptime(jour,"%Y-%m-%d").date() - timedelta(days=1)).strftime("%Y-%m-%d")
                         # jour = temp.strftime("%Y-%m-%d")
                         # print(f" nouveau jour : {jour}")
-
-                    # On applique les tarifs en fonction de la couleur du jour et de l'HP/HC
-                    simulBase += consommation * BleuBase #Lui, c'est toujours le même
-
+                    
+                    
                     #Calcul HC/HP
                     if int(heure[:2]) in HC:
                         ConsoHC += consommation
-                        simulHCHP += consommation * BleuHC
                         if couleur == "BLEU":
                             simulTempo += consommation * TempoBleuHC
                         elif couleur == "BLANC":
@@ -193,14 +209,12 @@ def doStuff():
                             simulTempo += consommation * TempoRougeHC
                     else:
                         ConsoHP += consommation
-                        simulHCHP += consommation * BleuHP
                         if couleur == "BLEU":
                             simulTempo += consommation * TempoBleuHP
                         elif couleur == "BLANC":
                             simulTempo += consommation * TempoBlancHP
                         elif couleur == "ROUGE":
                             simulTempo += consommation * TempoRougeHP
-
                 else:
                     print(f"Valeur hors calendrier TEMPO supporté pour la ligne {i} : {jour}")
 
@@ -229,8 +243,17 @@ def doStuff():
                             simulZen += consommation * ZenHCSobriete
                         else:
                             simulZen += consommation * ZenHPSobriete
+                print(tempoCounter.getTotal())
+                print(simulTempo)
+                print(couleur)
+                print(heure)
+                if (tempoCounter.getTotal() != simulTempo):
+                    return
 
-
+        simulBase = baseCounter.getTotal()
+        simulHCHP = HCHPCounter.getTotal()
+        print(tempoCounter.getTotal())
+        print(simulTempo)
         # Calcul du nombre de mois que recouvre le fichier CSV
         DerniereDate = datetime.fromisoformat(date_heure.replace("Z", "+00:00"))
 
