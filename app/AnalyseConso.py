@@ -179,38 +179,34 @@ def doStuff():
                         # print(f" nouveau jour : {jour}")
 
                     # On applique les tarifs en fonction de la couleur du jour et de l'HP/HC
+                    simulBase += consommation * BleuBase #Lui, c'est toujours le même
+
                     if couleur == "BLEU":
                         if int(heure[:2]) in HC:
                             ConsoHC += consommation
                             simulTempo += consommation * TempoBleuHC
-                            simulBase += consommation * BleuBase
                             simulHCHP += consommation * BleuHC
                         else:
                             ConsoHP += consommation
                             simulTempo += consommation * TempoBleuHP
-                            simulBase += consommation * BleuBase
                             simulHCHP += consommation * BleuHP
                     elif couleur == "BLANC":
                         if int(heure[:2]) in HC:
                             ConsoHC += consommation
                             simulTempo += consommation * TempoBlancHC
-                            simulBase += consommation * BleuBase
                             simulHCHP += consommation * BleuHC
                         else:
                             ConsoHP += consommation
                             simulTempo += consommation * TempoBlancHP
-                            simulBase += consommation * BleuBase
                             simulHCHP += consommation * BleuHP
                     elif couleur == "ROUGE":
                         if int(heure[:2]) in HC:
                             ConsoHC += consommation
                             simulTempo += consommation * TempoRougeHC
-                            simulBase += consommation * BleuBase
                             simulHCHP += consommation * BleuHC
                         else:
                             ConsoHP += consommation
                             simulTempo += consommation * TempoRougeHP
-                            simulBase += consommation * BleuBase
                             simulHCHP += consommation * BleuHP
                 else:
                     print(f"Valeur hors calendrier TEMPO supporté pour la ligne {i} : {jour}")
