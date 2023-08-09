@@ -158,6 +158,9 @@ def doStuff():
 
     ZenCounter = AboCounter("Zen")
     ZenCounter.setCalendrierJours(CalZen)
+    ZenCounter.setHeuresCreuses(HCZenFlex)
+    ZenCounter.setPricing({"HP":{"BLEU":ZenHPEco,"BLANC":ZenHPEco,"ROUGE":ZenHPSobriete},"HC":{"BLEU":ZenHCEco,"BLANC":ZenHCEco,"ROUGE":ZenHCSobriete}})
+
     # Ouvrir le fichier CSV de consommation en mode lecture
     with open(chemin_csv, newline='', encoding='utf-8-sig') as csvfile:
         lecteur = csv.reader(csvfile, delimiter=';')
@@ -184,76 +187,14 @@ def doStuff():
                 baseCounter.addConsummatedHour(consommation,heure,jour)
                 HCHPCounter.addConsummatedHour(consommation,heure,jour)
                 tempoCounter.addConsummatedHour(consommation,heure,jour)
+                ZenCounter.addConsummatedHour(consommation,heure,jour)
 
-                # Voir si le jour est bleu, blanc ou rouge
-                if jour in CalBar:
-                    couleur = CalBar[jour]
-                    # print(f"{jour} {heure} {consommation} {couleur}")
-
-                    # tester en fonction de l'heure (un jour commence à 6h, pas à minuit).
-                    # Si l'heure est inférieure à 6h, on considère que c'est la veille
-                    if heure < "06:00":
-                        jour = (datetime.strptime(jour,"%Y-%m-%d").date() - timedelta(days=1)).strftime("%Y-%m-%d")
-                        # jour = temp.strftime("%Y-%m-%d")
-                        # print(f" nouveau jour : {jour}")
-                    
-                    
-                    #Calcul HC/HP
-                    if int(heure[:2]) in HC:
-                        ConsoHC += consommation
-                        if couleur == "BLEU":
-                            simulTempo += consommation * TempoBleuHC
-                        elif couleur == "BLANC":
-                            simulTempo += consommation * TempoBlancHC
-                        elif couleur == "ROUGE":
-                            simulTempo += consommation * TempoRougeHC
-                    else:
-                        ConsoHP += consommation
-                        if couleur == "BLEU":
-                            simulTempo += consommation * TempoBleuHP
-                        elif couleur == "BLANC":
-                            simulTempo += consommation * TempoBlancHP
-                        elif couleur == "ROUGE":
-                            simulTempo += consommation * TempoRougeHP
-                else:
-                    print(f"Valeur hors calendrier TEMPO supporté pour la ligne {i} : {jour}")
-
-                # Même opération pour le forfait ZenFlex
-                if jour in CalZen:
-                    couleur = CalZen[jour]
-
-                    # tester en fonction de l'heure (un jour commence à 6h, pas à minuit).
-                    # Si l'heure est inférieure à 6h, on considère que c'est la veille
-                    if heure < "06:00":
-                        jour = (datetime.strptime(jour,"%Y-%m-%d").date() - timedelta(days=1)).strftime("%Y-%m-%d")
-
-                    # On applique les tarifs en fonction de la couleur du jour et de l'HP/HC du forfait ZenFlex
-                    if couleur == "BLEU":
-                        if int(heure[:2]) in HCZenFlex:                        
-                            simulZen += consommation * ZenHCEco
-                        else:
-                            simulZen += consommation * ZenHPEco
-                    elif couleur == "BLANC":
-                        if int(heure[:2]) in HCZenFlex:
-                            simulZen += consommation * ZenHCEco
-                        else:
-                            simulZen += consommation * ZenHPEco
-                    elif couleur == "ROUGE":
-                        if int(heure[:2]) in HCZenFlex:
-                            simulZen += consommation * ZenHCSobriete
-                        else:
-                            simulZen += consommation * ZenHPSobriete
-                print(tempoCounter.getTotal())
-                print(simulTempo)
-                print(couleur)
-                print(heure)
-                if (tempoCounter.getTotal() != simulTempo):
-                    return
 
         simulBase = baseCounter.getTotal()
         simulHCHP = HCHPCounter.getTotal()
-        print(tempoCounter.getTotal())
-        print(simulTempo)
+        simulTempo = tempoCounter.getTotal()
+        simulZen = ZenCounter.getTotal()
+
         # Calcul du nombre de mois que recouvre le fichier CSV
         DerniereDate = datetime.fromisoformat(date_heure.replace("Z", "+00:00"))
 
