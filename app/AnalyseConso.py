@@ -181,33 +181,26 @@ def doStuff():
                     # On applique les tarifs en fonction de la couleur du jour et de l'HP/HC
                     simulBase += consommation * BleuBase #Lui, c'est toujours le même
 
-                    if couleur == "BLEU":
-                        if int(heure[:2]) in HC:
-                            ConsoHC += consommation
+                    #Calcul HC/HP
+                    if int(heure[:2]) in HC:
+                        ConsoHC += consommation
+                        simulHCHP += consommation * BleuHC
+                        if couleur == "BLEU":
                             simulTempo += consommation * TempoBleuHC
-                            simulHCHP += consommation * BleuHC
-                        else:
-                            ConsoHP += consommation
-                            simulTempo += consommation * TempoBleuHP
-                            simulHCHP += consommation * BleuHP
-                    elif couleur == "BLANC":
-                        if int(heure[:2]) in HC:
-                            ConsoHC += consommation
+                        elif couleur == "BLANC":
                             simulTempo += consommation * TempoBlancHC
-                            simulHCHP += consommation * BleuHC
-                        else:
-                            ConsoHP += consommation
-                            simulTempo += consommation * TempoBlancHP
-                            simulHCHP += consommation * BleuHP
-                    elif couleur == "ROUGE":
-                        if int(heure[:2]) in HC:
-                            ConsoHC += consommation
+                        elif couleur == "ROUGE":
                             simulTempo += consommation * TempoRougeHC
-                            simulHCHP += consommation * BleuHC
-                        else:
-                            ConsoHP += consommation
+                    else:
+                        ConsoHP += consommation
+                        simulHCHP += consommation * BleuHP
+                        if couleur == "BLEU":
+                            simulTempo += consommation * TempoBleuHP
+                        elif couleur == "BLANC":
+                            simulTempo += consommation * TempoBlancHP
+                        elif couleur == "ROUGE":
                             simulTempo += consommation * TempoRougeHP
-                            simulHCHP += consommation * BleuHP
+
                 else:
                     print(f"Valeur hors calendrier TEMPO supporté pour la ligne {i} : {jour}")
 
