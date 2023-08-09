@@ -9,7 +9,7 @@ def retrievePricingsfromEDF():
 
 @app.route('/')
 def hello():
-	#pricings = retrievePricingsfromEDF()
+	pricings = retrievePricingsfromEDF()
 
 	return "Hello World!" + pricings
 
