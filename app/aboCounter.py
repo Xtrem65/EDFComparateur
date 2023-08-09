@@ -60,5 +60,8 @@ class AboCounter:
 
     def getTotal(self):
         return self.total
+    
+    def getDetails(self):
+        return self.details
 
 

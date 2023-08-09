@@ -25,8 +25,46 @@
 import csv
 from datetime import datetime, timedelta
 from aboCounter import AboCounter
+import tempfile
 
-def doStuff():
+def processFile(csvFile, priceCounters):
+
+    lecteur = csv.reader(csvFile, delimiter=';')
+    i = 0
+    
+    for ligne in lecteur:
+        # Gestion simpliste de l'entête du CSV : si le 5e caractère de la ligne n'est pas un tiret (donc une date), ignorer la ligne
+        if ligne[0][4] == "-":
+            i += 1
+            date_heure = ligne[0]
+            consommation = int(ligne[1]) if ligne[1].strip() else 0        
+            consommation = consommation / 2000  # Convertir les W sur 30 minutes en kW.h
+            date_heure = date_heure[:-6]  # Enlever le décalage horaire (ex: +01:00)            
+
+            # Récupération du 1er mois, pour compter le nombre de mois que recouvre le CSV
+            if i == 1:
+                PremiereDate = datetime.fromisoformat(date_heure.replace("Z", "+00:00"))
+
+            # Extraire la date (ex: "2023-01-05")
+            jour = date_heure[:10]
+            # Extraire l'heure (ex: "23:59")
+            heure = date_heure[11:]
+            for counter in priceCounters:
+                counter.addConsummatedHour(consommation,heure,jour)
+    
+    # Calcul du nombre de mois que recouvre le fichier CSV
+    DerniereDate = datetime.fromisoformat(date_heure.replace("Z", "+00:00"))
+
+    # Durée en mois couverte par le CSV 
+    nbMois = int((DerniereDate - PremiereDate).days / 30)
+    DernierMois = int(date_heure[5:7])
+    print(f"Nombre de lignes traitées : {i}")
+    # nbMois = DernierMois - PremierMois + 1
+    print(f"Nombre de mois dans le CSV : {nbMois}")
+    return priceCounters
+
+
+def doStuff(userSharedContent=""):
     #################################################################################################
     #
     # Variables amenées à être modifiées par les utilisateurs
@@ -128,7 +166,6 @@ def doStuff():
             # et la couleur comme valeur associée
             CalBar[date_obj.strftime("%Y-%m-%d")] = ligne[1]
 
-
     with open("../data/calZen.csv", newline='') as csvfile:
         # Créer un objet lecteur CSV
         lecteur_csv = csv.reader(csvfile, delimiter=';')
@@ -142,7 +179,6 @@ def doStuff():
             # Utiliser la date au format "YYYY-MM-DD" comme clé dans le dictionnaire
             # et la couleur comme valeur associée
             CalZen[date_obj.strftime("%Y-%m-%d")] = ligne[1]
-
 
     baseCounter = AboCounter("Base")
     baseCounter.setPricing({"HP":BleuBase})
@@ -163,46 +199,20 @@ def doStuff():
 
     priceCounters = [baseCounter, tempoCounter, HCHPCounter, ZenCounter]
 
-    # Ouvrir le fichier CSV de consommation en mode lecture
-    with open(chemin_csv, newline='', encoding='utf-8-sig') as csvfile:
-        lecteur = csv.reader(csvfile, delimiter=';')
-        i = 0
-        for ligne in lecteur:
-            # Gestion simpliste de l'entête du CSV : si le 5e caractère de la ligne n'est pas un tiret (donc une date), ignorer la ligne
-            if ligne[0][4] == "-":
-                i += 1
-                date_heure = ligne[0]
-                consommation = int(ligne[1]) if ligne[1].strip() else 0        
-                consommation = consommation / 2000  # Convertir les W sur 30 minutes en kW.h
+    if userSharedContent == "":
+        print("Using Example Dataset")
+        with open(chemin_csv, newline='', encoding='utf-8-sig') as csvfile:
+            priceCounters = processFile(csvfile,priceCounters)
+    else: 
+        print("Using shared dataset")
+        #Checker le format
+        #Appeller processFile avec le fichier importé (attention csv_reader attends un vrai fichier)
 
-                date_heure = date_heure[:-6]  # Enlever le décalage horaire (ex: +01:00)            
-
-                # Récupération du 1er mois, pour compter le nombre de mois que recouvre le CSV
-                if i == 1:
-                    PremiereDate = datetime.fromisoformat(date_heure.replace("Z", "+00:00"))
-
-                # Extraire la date (ex: "2023-01-05")
-                jour = date_heure[:10]
-                # Extraire l'heure (ex: "23:59")
-                heure = date_heure[11:]
-                for counter in priceCounters:
-                    counter.addConsummatedHour(consommation,heure,jour)
-
-        #Ici, on rattrape sur l'ancien algo :)
-        simulBase = baseCounter.getTotal()
-        simulHCHP = HCHPCounter.getTotal()
-        simulTempo = tempoCounter.getTotal()
-        simulZen = ZenCounter.getTotal()
-
-        # Calcul du nombre de mois que recouvre le fichier CSV
-        DerniereDate = datetime.fromisoformat(date_heure.replace("Z", "+00:00"))
-
-        # Durée en mois couverte par le CSV 
-        nbMois = int((DerniereDate - PremiereDate).days / 30)
-        DernierMois = int(date_heure[5:7])
-        print(f"Nombre de lignes traitées : {i}")
-        # nbMois = DernierMois - PremierMois + 1
-        print(f"Nombre de mois dans le CSV : {nbMois}")
+    #Ici, on rattrape sur l'ancien algo :)
+    simulBase = baseCounter.getTotal()
+    simulHCHP = HCHPCounter.getTotal()
+    simulTempo = tempoCounter.getTotal()
+    simulZen = ZenCounter.getTotal()
 
     # Ajout du coût annuel de l'abonnement
     if abonnement == 6:
@@ -240,6 +250,7 @@ def doStuff():
     print(f"  HCHP = {simulHCHP} €")
     print(f"  ZenFlex = {simulZen} €")
     print()
+    return priceCounters
 
 
 if __name__ == '__main__':
