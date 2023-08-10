@@ -5,8 +5,10 @@
 <p>Hi, this is my personal website.</p>
 {% for counter in results %}
 <p>{{ counter.name }} </p>
-<p>{{ counter.total }} </p>
-<p>{{ counter.details }} </p>
+<p>{{ counter.getTotalConso() }} </p>
+<p>{{ counter.getTotalAbo() }} </p>
+<p>{{ counter.getDetails() }} </p>
+<p>{{ counter.errors }} </p>
 {% endfor %}
 
 </body>

@@ -62,6 +62,9 @@ def processFile(csvFile, priceCounters):
     print(f"Nombre de lignes traitées : {i}")
     # nbMois = DernierMois - PremierMois + 1
     print(f"Nombre de mois dans le CSV : {nbMois}")
+    for counter in priceCounters:
+        counter.setNbMoisAbo(nbMois)
+
     return priceCounters
 
 
@@ -85,7 +88,7 @@ def getTempoCalendar():
     RTE = RteCommunicator()
     return RTE.getTempo()
 
-def doStuff(userSharedContent=""):
+def doStuff(puissance, enedisFileStream=""):
     #################################################################################################
     #
     # Variables amenées à être modifiées par les utilisateurs
@@ -98,9 +101,6 @@ def doStuff(userSharedContent=""):
 
     # Horaires HC/HP pour l'abonnement ZenFlex
     HCZenFlex = [0,1,2,3,4,5,6,7,14,15,16,17,20,21,22,23]
-
-    # Abonnement en kVA : 6, 9 ou 12
-    abonnement = 9
 
     # Chemin vers le fichier CSV. Ce fichier est à récupérer sur le site d'Enedis, en ayant activé 
     # l'option "Historique de consommation" avec le pas demi-horaire dans l'espace client.
@@ -129,6 +129,44 @@ def doStuff(userSharedContent=""):
     AboTempo12kva = 19.29
 
     BleuBase = 0.2276
+
+    Abonnement = {
+                "Base": {
+                    "3":9.47,
+                    "6":12.44,
+                    "9":15.63,
+                    "12":18.89,
+                    "15":21.92,
+                    "18":24.92,
+                    "24":31.60,
+                    "30":37.29,
+                    "36":44.66
+                },
+                "HCHP": {
+                    "6":12.85,
+                    "9":16.55,
+                    "12":19.97,
+                    "15":23.24,
+                    "18":26.48,
+                    "24":33.28,
+                    "30":39.46,
+                    "36":44.64
+                },
+                "TEMPO": {
+                    "6":12.80,
+                    "9":16.00,
+                    "12":19.29,
+                    "15":22.30,
+                    "18":25.29,
+                    "30":38.13,
+                    "36":44.28
+                },
+                "ZEN": {
+                    "6":12.62,
+                    "9":15.99,
+                    "12":19.27,
+                }
+            }
     AboBleu3kva = 9.47
     AboBleu6kva = 12.44
     AboBleu9kva = 15.63
@@ -166,52 +204,56 @@ def doStuff(userSharedContent=""):
 
     baseCounter = AboCounter("Base")
     baseCounter.setPricing({"HP":BleuBase})
+    baseCounter.setAboMensuel(Abonnement["Base"][puissance])
 
     tempoCounter = AboCounter("Tempo")
     tempoCounter.setCalendrierJours(CalBar)
     tempoCounter.setHeuresCreuses(HC)
     tempoCounter.setPricing({"HP":{"BLUE":TempoBleuHP,"WHITE":TempoBlancHP,"RED":TempoRougeHP},"HC":{"BLUE":TempoBleuHC,"WHITE":TempoBlancHC,"RED":TempoRougeHC}})
+    tempoCounter.setAboMensuel(Abonnement["TEMPO"][puissance])
     
     HCHPCounter = AboCounter("HCHP")
     HCHPCounter.setPricing({"HP":BleuHP, "HC":BleuHC})
     HCHPCounter.setHeuresCreuses(HC)
+    HCHPCounter.setAboMensuel(Abonnement["HCHP"][puissance])
 
     ZenCounter = AboCounter("Zen")
     ZenCounter.setCalendrierJours(CalZen)
     ZenCounter.setHeuresCreuses(HCZenFlex)
     ZenCounter.setPricing({"HP":{"BLEU":ZenHPEco,"BLANC":ZenHPEco,"ROUGE":ZenHPSobriete},"HC":{"BLEU":ZenHCEco,"BLANC":ZenHCEco,"ROUGE":ZenHCSobriete}})
+    ZenCounter.setAboMensuel(Abonnement["ZEN"][puissance])
 
     priceCounters = [baseCounter, tempoCounter, HCHPCounter, ZenCounter]
 
-    if userSharedContent == "":
+    if enedisFileStream == "":
         print("Using Example Dataset")
         with open(chemin_csv, newline='', encoding='utf-8-sig') as csvfile:
             priceCounters = processFile(csvfile,priceCounters)
     else: 
         print("Using shared dataset")
-        print(userSharedContent)
+        print(enedisFileStream)
         #Checker le format
         #Appeller processFile avec le fichier importé (attention csv_reader attends un vrai fichier)
-        priceCounters = processFile(userSharedContent,priceCounters)
+        priceCounters = processFile(enedisFileStream,priceCounters)
 
     #Ici, on rattrape sur l'ancien algo :)
-    simulBase = baseCounter.getTotal()
-    simulHCHP = HCHPCounter.getTotal()
-    simulTempo = tempoCounter.getTotal()
-    simulZen = ZenCounter.getTotal()
+    simulBase = baseCounter.getTotalConso()
+    simulHCHP = HCHPCounter.getTotalConso()
+    simulTempo = tempoCounter.getTotalConso()
+    simulZen = ZenCounter.getTotalConso()
 
     # Ajout du coût annuel de l'abonnement
-    if abonnement == 6:
+    if puissance == 6:
         simulTempo += AboTempo6kva*nbMois
         simulBase += AboBleu6kva*nbMois
         simulHCHP += AboHC6kva*nbMois
         simulZen += ZenAbo6kva*nbMois    
-    elif abonnement == 9:
+    elif puissance == 9:
         simulTempo += AboTempo9kva*nbMois
         simulBase += AboBleu9kva*nbMois
         simulHCHP += AboHP9kva*nbMois
         simulZen += ZenAbo9kva*nbMois
-    elif abonnement == 12:
+    elif puissance == 12:
         simulTempo += AboTempo12kva*nbMois
         simulBase += AboBleu12kva*nbMois
         simulHCHP += AboHP12kva*nbMois

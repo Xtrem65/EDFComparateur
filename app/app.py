@@ -13,14 +13,15 @@ def retrievePricingsfromEDF():
 def homepage():
 	if request.method == "POST":
 		file = request.files.get("file")
+		puissance = request.form["puissance"]
 		data = file.stream.read()
 		# check if file loaded successfully or not
 		if data:
-			stream = StringIO(data.decode("UTF8"), newline=None)
-			results = doStuff(stream)
+			enedisFile = StringIO(data.decode("UTF8"), newline=None)
+			results = doStuff(puissance, enedisFile)
 			return render_template("results.html",results=results)
-		else:
-			results = doStuff()
+		else:#Pour tester - virer a
+			results = doStuff(puissance)
 			return render_template("results.html", results=results)
 
 	return render_template("homepage.html") #Ici, on peut upload son fichier, cliquer sur un bouton pour processer et être redirigé vers la page de resultats
