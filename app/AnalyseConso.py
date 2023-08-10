@@ -25,7 +25,7 @@
 import csv
 from datetime import datetime, timedelta
 from aboCounter import AboCounter
-import tempfile
+from rteCommunicator import RteCommunicator
 
 def processFile(csvFile, priceCounters):
 
@@ -33,6 +33,7 @@ def processFile(csvFile, priceCounters):
     i = 0
     
     for ligne in lecteur:
+        print(ligne)
         # Gestion simpliste de l'entête du CSV : si le 5e caractère de la ligne n'est pas un tiret (donc une date), ignorer la ligne
         if ligne[0][4] == "-":
             i += 1
@@ -63,6 +64,26 @@ def processFile(csvFile, priceCounters):
     print(f"Nombre de mois dans le CSV : {nbMois}")
     return priceCounters
 
+
+def getZenCalendar():
+    data={}
+    with open("../data/calZen.csv", newline='') as csvfile:
+        # Créer un objet lecteur CSV
+        lecteur_csv = csv.reader(csvfile, delimiter=';')
+        
+        # Parcourir chaque ligne du CSV
+        for ligne in lecteur_csv:
+            # Convertir la date au format "01/09/2019" en objet datetime
+            date_str = ligne[0]
+            date_obj = datetime.strptime(date_str, "%d/%m/%Y").date()
+            
+            # Utiliser la date au format "YYYY-MM-DD" comme clé dans le dictionnaire
+            # et la couleur comme valeur associée
+            data[date_obj.strftime("%Y-%m-%d")] = ligne[1]
+    return data
+def getTempoCalendar():
+    RTE = RteCommunicator()
+    return RTE.getTempo()
 
 def doStuff(userSharedContent=""):
     #################################################################################################
@@ -128,13 +149,9 @@ def doStuff(userSharedContent=""):
     ZenAbo12kva = 19.27
 
     # Dictionnaire des jours bleu blanc rouge. Chaque élément est un tuple (date, couleur)
-    CalBar = {}
-
+    CalBar = getTempoCalendar()
     # Dictionnaire des jours eco/sobriété de l'offre ZenFlex
-    CalZen = {}
-
-    # Tableau des données de consommation. Chaque élément est un tuple (date_heure, consommation HC, consommation HP)
-    CalConso = []
+    CalZen = getZenCalendar()
 
     # Nombre de mois dans le fichier CSV de consommation de l'utilisateur. Par défaut 12
     nbMois = 12
@@ -147,46 +164,13 @@ def doStuff(userSharedContent=""):
     # Consommation en HP et HC
     ConsoHP, ConsoHC = 0.0, 0.0
 
-    # Importe un fichier avec les dates des jours bleu blanc rouge, et les stocke dans une liste
-    # Fichier CSV avec 2 colonnes : date et couleur
-    # Généré à la main depuis les fichiers "Calendrier TEMPO" dispos sur le site de RTE :
-    # https://www.rte-france.com/eco2mix/telecharger-les-indicateurs
-    # Ouvrir le fichier CSV en mode lecture
-    with open("../data/calBAR.csv", newline='') as csvfile:
-        # Créer un objet lecteur CSV
-        lecteur_csv = csv.reader(csvfile, delimiter=';')
-        
-        # Parcourir chaque ligne du CSV
-        for ligne in lecteur_csv:
-            # Convertir la date au format "01/09/2019" en objet datetime
-            date_str = ligne[0]
-            date_obj = datetime.strptime(date_str, "%d/%m/%Y").date()
-            
-            # Utiliser la date au format "YYYY-MM-DD" comme clé dans le dictionnaire
-            # et la couleur comme valeur associée
-            CalBar[date_obj.strftime("%Y-%m-%d")] = ligne[1]
-
-    with open("../data/calZen.csv", newline='') as csvfile:
-        # Créer un objet lecteur CSV
-        lecteur_csv = csv.reader(csvfile, delimiter=';')
-        
-        # Parcourir chaque ligne du CSV
-        for ligne in lecteur_csv:
-            # Convertir la date au format "01/09/2019" en objet datetime
-            date_str = ligne[0]
-            date_obj = datetime.strptime(date_str, "%d/%m/%Y").date()
-            
-            # Utiliser la date au format "YYYY-MM-DD" comme clé dans le dictionnaire
-            # et la couleur comme valeur associée
-            CalZen[date_obj.strftime("%Y-%m-%d")] = ligne[1]
-
     baseCounter = AboCounter("Base")
     baseCounter.setPricing({"HP":BleuBase})
 
     tempoCounter = AboCounter("Tempo")
     tempoCounter.setCalendrierJours(CalBar)
     tempoCounter.setHeuresCreuses(HC)
-    tempoCounter.setPricing({"HP":{"BLEU":TempoBleuHP,"BLANC":TempoBlancHP,"ROUGE":TempoRougeHP},"HC":{"BLEU":TempoBleuHC,"BLANC":TempoBlancHC,"ROUGE":TempoRougeHC}})
+    tempoCounter.setPricing({"HP":{"BLUE":TempoBleuHP,"WHITE":TempoBlancHP,"RED":TempoRougeHP},"HC":{"BLUE":TempoBleuHC,"WHITE":TempoBlancHC,"RED":TempoRougeHC}})
     
     HCHPCounter = AboCounter("HCHP")
     HCHPCounter.setPricing({"HP":BleuHP, "HC":BleuHC})
@@ -205,8 +189,10 @@ def doStuff(userSharedContent=""):
             priceCounters = processFile(csvfile,priceCounters)
     else: 
         print("Using shared dataset")
+        print(userSharedContent)
         #Checker le format
         #Appeller processFile avec le fichier importé (attention csv_reader attends un vrai fichier)
+        priceCounters = processFile(userSharedContent,priceCounters)
 
     #Ici, on rattrape sur l'ancien algo :)
     simulBase = baseCounter.getTotal()

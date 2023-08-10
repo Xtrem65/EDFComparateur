@@ -1,3 +1,6 @@
+## TODO RAJOUTER 
+ pip install git+https://github.com/ReinboldV/api_rte.git
+
 ## Compose sample application
 
 ### Use with Docker Development Environments

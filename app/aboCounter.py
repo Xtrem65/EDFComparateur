@@ -24,6 +24,7 @@ class AboCounter:
         self.heuresCreuses = heuresCreuses
 
     def getCouleurFromJour(self, jour):
+        
         if jour in self.calendrierJours:
             return self.calendrierJours[jour]
         else:
@@ -37,6 +38,9 @@ class AboCounter:
             return "HP"
 
     def getInstantTarification(self, couleur, tarification):
+        print("Name",self.name)
+        print("Color",couleur)
+        print("Tarif",tarification)
         tarifHoraire = self.pricing[tarification]
         if isinstance(tarifHoraire, float):
             return tarifHoraire
