@@ -1,13 +1,24 @@
 <!DOCTYPE html>
 <html>
 <body>
-<h1>My RESULTS Website</h1>
-<p>Hi, this is my personal website.</p>
+<h1>My RESULTS page</h1>
+
+<p>Retour à la <a href="/">homepage</a>.</p>
+
 {% for counter in results %}
-<p>{{ counter.name }} </p>
-<p>{{ counter.getTotalConso() }} </p>
-<p>{{ counter.getTotalAbo() }} </p>
-<p>{{ counter.getDetails() }} </p>
+<p>Offre {{ counter.name }}</p>
+
+<p>Consommation HC : {{ counter.getDetails()["HC"] }} </p>
+<p>Consommation HP : {{ counter.getDetails()["HP"] }} </p>
+
+<p>Consommation Blanc : {{ counter.getDetails()["WHITE"] }} </p>
+<p>Consommation Bleu : {{ counter.getDetails()["BLUE"] }} </p>
+<p>Consommation Rouge : {{ counter.getDetails()["RED"] }} </p>
+
+<p>Cout Total Consommation : {{ counter.getTotalConso() }} </p>
+<p>Cout Abonnement : {{ counter.getTotalAbo() }} </p>
+<p>Cout TOTAL ULTIME : {{ counter.getTotal() }} </p>
+
 <p>{{ counter.errors }} </p>
 {% endfor %}
 

@@ -33,7 +33,6 @@ def processFile(csvFile, priceCounters):
     i = 0
     
     for ligne in lecteur:
-        print(ligne)
         # Gestion simpliste de l'entête du CSV : si le 5e caractère de la ligne n'est pas un tiret (donc une date), ignorer la ligne
         if ligne[0][4] == "-":
             i += 1
@@ -231,53 +230,10 @@ def doStuff(puissance, enedisFileStream=""):
             priceCounters = processFile(csvfile,priceCounters)
     else: 
         print("Using shared dataset")
-        print(enedisFileStream)
         #Checker le format
         #Appeller processFile avec le fichier importé (attention csv_reader attends un vrai fichier)
         priceCounters = processFile(enedisFileStream,priceCounters)
 
-    #Ici, on rattrape sur l'ancien algo :)
-    simulBase = baseCounter.getTotalConso()
-    simulHCHP = HCHPCounter.getTotalConso()
-    simulTempo = tempoCounter.getTotalConso()
-    simulZen = ZenCounter.getTotalConso()
-
-    # Ajout du coût annuel de l'abonnement
-    if puissance == 6:
-        simulTempo += AboTempo6kva*nbMois
-        simulBase += AboBleu6kva*nbMois
-        simulHCHP += AboHC6kva*nbMois
-        simulZen += ZenAbo6kva*nbMois    
-    elif puissance == 9:
-        simulTempo += AboTempo9kva*nbMois
-        simulBase += AboBleu9kva*nbMois
-        simulHCHP += AboHP9kva*nbMois
-        simulZen += ZenAbo9kva*nbMois
-    elif puissance == 12:
-        simulTempo += AboTempo12kva*nbMois
-        simulBase += AboBleu12kva*nbMois
-        simulHCHP += AboHP12kva*nbMois
-        simulZen += ZenAbo12kva*nbMois
-
-    #Arrondir à 2 décimales
-    simulTempo = round(simulTempo, 2)
-    simulBase = round(simulBase, 2)
-    simulHCHP = round(simulHCHP, 2)
-    simulZen = round(simulZen, 2)
-    ConsoHC = round(ConsoHC, 2)
-    ConsoHP = round(ConsoHP, 2)
-
-    print()
-    print(f"Consommation HP : {ConsoHP} kW.h")
-    print(f"Consommation HC : {ConsoHC} kW.h")
-    print(f"Consommation totale : {round(ConsoHP + ConsoHC, 2)} kW.h")
-    print()
-    print(f"Simulation des coûts sur {nbMois} mois, selon les 3 forfaits :")
-    print(f"  Tempo = {simulTempo} €")
-    print(f"  Base = {simulBase} €")
-    print(f"  HCHP = {simulHCHP} €")
-    print(f"  ZenFlex = {simulZen} €")
-    print()
     return priceCounters
 
 
