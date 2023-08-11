@@ -5,7 +5,7 @@ import pandas as pd
 from api_config import *
 # Merci https://github.com/ReinboldV/api_rte
 
-def get_token(oauth_url=OAUTH_URL, client_id=CLIENT_ID, client_secret=CLIENT_SECRET):
+def get_token(oauth_url=OAUTH_URL, client_id=EDF_CLIENT_ID, client_secret=EDF_CLIENT_SECRET):
     """
 
     :param oauth_url:
@@ -28,8 +28,8 @@ def get_token(oauth_url=OAUTH_URL, client_id=CLIENT_ID, client_secret=CLIENT_SEC
 
 def get_tempo(start_date, end_date,
               oauth_url=OAUTH_URL,
-              client_id=CLIENT_ID,
-              client_secret=CLIENT_SECRET,
+              client_id=EDF_CLIENT_ID,
+              client_secret=EDF_CLIENT_SECRET,
               url_tempo=URL_TEMPO):
     """
 
@@ -51,8 +51,8 @@ def get_tempo(start_date, end_date,
 
 def get_prod(start_date, end_date, production_type=None, type=None,
              oauth_url=OAUTH_URL,
-             client_id=CLIENT_ID,
-             client_secret=CLIENT_SECRET,
+             client_id=EDF_CLIENT_ID,
+             client_secret=EDF_CLIENT_SECRET,
              url_prod=URL_PROD):
     """ General method to download RTE forecasts production
 
@@ -262,7 +262,7 @@ if __name__ == '__main__':
     from api_config import *
     import datetime
 
-    token_type, token = get_token(client_id=CLIENT_ID, client_secret=CLIENT_SECRET, oauth_url=OAUTH_URL)
+    token_type, token = get_token(client_id=EDF_CLIENT_ID, client_secret=EDF_CLIENT_SECRET, oauth_url=OAUTH_URL)
     TSTART = datetime.datetime.today() - datetime.timedelta(days=2)
     TEND = datetime.datetime.today() + datetime.timedelta(days=0)
 

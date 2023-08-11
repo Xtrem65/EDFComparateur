@@ -5,11 +5,10 @@ This script is user dependant, Please change client ID and client secret code be
 working directory are also case dependant.
 Merci https://github.com/ReinboldV/api_rte
 """
-
+import os
 # Client ID and secret code, you can get those at https://data.rte-france.com/
-EDF_CLIENT_ID       = ''
-EDF_CLIENT_SECRET   = ''
-
+EDF_CLIENT_ID = os.environ["EDF_CLIENT_ID"]
+EDF_CLIENT_SECRET = os.environ["EDF_CLIENT_SECRET"]
 # URL for authentication and get a token access :
 OAUTH_URL = 'https://digital.iservices.rte-france.com/token/oauth/'
 
