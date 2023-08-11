@@ -77,13 +77,13 @@ class AboCounter:
         self.details[tarification] = self.details[tarification] + hourCost
 
     def getTotalConso(self):
-        return self.totalConso
+        return round(self.totalConso)
     
     def getTotalAbo(self):
-        return self.aboMensuel * self.nbMoisAbo
+        return round(self.aboMensuel * self.nbMoisAbo)
     
     def getTotal(self):
-        return self.getTotalConso() + self.getTotalAbo()
+        return round(self.getTotalConso() + self.getTotalAbo())
     
     def getDetails(self):
         return self.details

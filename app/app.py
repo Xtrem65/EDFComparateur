@@ -19,10 +19,10 @@ def homepage():
 		if data:
 			enedisFile = StringIO(data.decode("UTF8"), newline=None)
 			results = doStuff(puissance, enedisFile)
-			return render_template("results.html",results=results)
+			return render_template("results.html",simulations=results)
 		else:#Pour tester - virer a
 			results = doStuff(puissance)
-			return render_template("results.html", results=results)
+			return render_template("results.html", simulations=results)
 
 	return render_template("homepage.html") #Ici, on peut upload son fichier, cliquer sur un bouton pour processer et être redirigé vers la page de resultats
 
