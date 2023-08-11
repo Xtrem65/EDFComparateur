@@ -1,18 +1,63 @@
 <!DOCTYPE html>
 <html>
+<head>
+<style>
+  body {
+    font-family: Arial, sans-serif;
+    background-color: #f7f7f7;
+    margin: 0;
+    padding: 0;
+  }
+  h1 {
+    color: #003366; /* EDF blue */
+    text-align: center;
+    padding: 20px;
+  }
+  p {
+    color: #333;
+    margin: 10px;
+    text-align: center;
+  }
+  form {
+    background-color: #ffffff;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    padding: 20px;
+    max-width: 400px;
+    margin: 0 auto;
+  }
+  label {
+    display: block;
+    margin-bottom: 5px;
+  }
+  select,
+  input[type="file"],
+  input[type="submit"] {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 15px;
+    border: 1px solid #ccc;
+    border-radius: 3px;
+  }
+</style>
+</head>
 <body>
-<h1>My HOMEPAGE Website</h1>
-<p>Hi, this is my personal website.</p>
-<body>
-    <form method="post" enctype="multipart/form-data">
-        <p>ETAPE 1 - Puissance de votre installation (3/6/9/12/15kva)</p>
-
-        <input type="number" name="puissance">
-        <p>ETAPE 2 - Merci d'inserer votre export ENEDIS ici</p>
-        <input type="file" name="file">
-        <p>ETAPE 3 - Soumettez-vous au compte de montmirail si vous voulez qu'il se montre magnanime</p>
-        <input type="submit" value="Submit">
-    </form>
-</body>
+<h1>Simulateur de Tarifications EDF</h1>
+<form method="post" enctype="multipart/form-data">
+  <p>ETAPE 1 - Puissance de votre installation</p>
+  <select name="puissance">
+    <option value="3">3 kVA</option>
+    <option value="6">6 kVA</option>
+    <option selected value="9">9 kVA</option>
+    <option value="12">12 kVA</option>
+    <option value="15">15 kVA</option>
+  </select>
+  
+  <p>ETAPE 2 - Merci d'inserer votre export ENEDIS ici</p>
+  <input type="file" name="file">
+  
+  <p>ETAPE 3 - Soumettez-vous au compte de montmirail si vous voulez qu'il se montre magnanime</p>
+  <input type="submit" value="Submit">
+</form>
 </body>
 </html>
