@@ -142,6 +142,7 @@
             <table class="comparison-table">
                 <tr>
                     <th>Nom</th>
+                    <th>Watts</th>
                     <th class="total-column">Prix Total</th>
                     <th>Prix Abonnement</th>
                     <th>Prix Consommation</th>
@@ -150,17 +151,18 @@
                 {% for simulation in simulations %}
                 <tr>
                     <td>{{ simulation.name }}</td>
+                    <td>{{ simulation.getTotalConsommatedWatts() }}</td>
                     <td class="total-column">{{ simulation.getTotal() }}</td>
                     <td>{{ simulation.getTotalAbo() }}</td>
                     <td>{{ simulation.getTotalConso() }}</td>
                     <td class="details-cell" onclick="showDetailsPopup('detailsPopup{{ loop.index }}')">Voir les détails</td>
                 </tr>
                 <div class="details-popup" id="detailsPopup{{ loop.index }}" style="display: none;">
-                    <p><strong>Détail Consommation Heure Plein:</strong> {{ simulation.getDetails()["HP"] }}</p>
-                    <p><strong>Détail Consommation Heure Creuse:</strong> {{ simulation.getDetails()["HC"] }}</p>
-                    <p><strong>Détail Consommation Jours Bleus:</strong> {{ simulation.getDetails()["BLUE"] }}</p>
-                    <p><strong>Détail Consommation Jours Blancs:</strong> {{ simulation.getDetails()["WHITE"] }}</p>
-                    <p><strong>Détail Consommation Jours Rouges:</strong> {{ simulation.getDetails()["RED"] }}</p>
+                    <p><strong>Détail Consommation Heures Pleines(€):</strong> {{ simulation.getDetails()["HP"] }}</p>
+                    <p><strong>Détail Consommation Heures Creuses(€):</strong> {{ simulation.getDetails()["HC"] }}</p>
+                    <p><strong>Détail Consommation Jours Bleus(€):</strong> {{ simulation.getDetails()["BLUE"] }}</p>
+                    <p><strong>Détail Consommation Jours Blancs(€):</strong> {{ simulation.getDetails()["WHITE"] }}</p>
+                    <p><strong>Détail Consommation Jours Rouges(€):</strong> {{ simulation.getDetails()["RED"] }}</p>
                     {% if simulation.errors %}
                     <p><strong>Erreurs:</strong></p>
                     <ul>

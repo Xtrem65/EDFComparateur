@@ -7,8 +7,8 @@ Merci https://github.com/ReinboldV/api_rte
 """
 
 # Client ID and secret code, you can get those at https://data.rte-france.com/
-CLIENT_ID       = ''
-CLIENT_SECRET   = '980620be-b568-4971-aebb-cb316b7dd991'
+EDF_CLIENT_ID       = ''
+EDF_CLIENT_SECRET   = ''
 
 # URL for authentication and get a token access :
 OAUTH_URL = 'https://digital.iservices.rte-france.com/token/oauth/'

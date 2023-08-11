@@ -14,6 +14,7 @@ class AboCounter:
 
         self.aboMensuel = 0
         self.nbMoisAbo = 1
+        self.totalConsommatedWatts = 0
 
         self.calendrierJours = {}
         self.heuresCreuses = []
@@ -57,6 +58,9 @@ class AboCounter:
             return tarifHoraire
         else:
             return tarifHoraire[couleur]
+        
+    def getTotalConsommatedWatts(self):
+        return round(self.totalConsommatedWatts)
     
     def addConsummatedHour(self, conso, heure, jour):
         if heure < "06:00":
@@ -69,7 +73,7 @@ class AboCounter:
         except:
             self.errors[jour]="Could not find tarification"
             return
-
+        self.totalConsommatedWatts = self.totalConsommatedWatts + conso
         hourCost = instantTarif * conso
 
         self.totalConso = self.totalConso + hourCost

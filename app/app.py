@@ -3,12 +3,6 @@ app = Flask(__name__)
 from AnalyseConso import *
 from io import StringIO
 
-
-def retrievePricingsfromEDF():
-	#https://particulier.edf.fr/content/dam/2-Actifs/Documents/Offres/Grille_prix_Tarif_Bleu.pdf
-	return ""
-
-
 @app.route('/', methods=["GET", "POST"])
 def homepage():
 	if request.method == "POST":
