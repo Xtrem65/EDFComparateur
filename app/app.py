@@ -14,12 +14,11 @@ def homepage():
 			enedisFile = StringIO(data.decode("UTF8"), newline=None)
 			results = doStuff(puissance, enedisFile)
 			return render_template("results.html",simulations=results)
-		else:#Pour tester - virer a
+		else:
 			results = doStuff(puissance)
-			return render_template("results.html", simulations=results)
+			return render_template("results.html", simulations=results,test=True)
 
 	return render_template("homepage.html") #Ici, on peut upload son fichier, cliquer sur un bouton pour processer et être redirigé vers la page de resultats
 
 if __name__ == '__main__':
 	app.run(host='0.0.0.0', port=8000, debug=True)
-

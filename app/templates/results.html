@@ -138,6 +138,9 @@
 <body>
     <div class="container">
         <h1>Comparatif de Simulations de Prix d'Électricité</h1>
+        {% if test == True: %}
+        <div >Aucun jeu de test fourni, exécution avec un jeu de test d'exemple</div>
+        {% endif %}
         <div class="table-responsive">
             <table class="comparison-table">
                 <tr>
