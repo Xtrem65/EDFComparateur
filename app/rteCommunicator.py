@@ -39,6 +39,3 @@ class RteCommunicator:
             tempoCalendar[date] = iteratedDate["value"]
         return tempoCalendar
 
-rte = RteCommunicator()
-rte.getTempo()
-
