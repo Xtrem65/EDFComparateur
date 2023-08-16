@@ -123,10 +123,12 @@ def doStuff(puissance, enedisFileStream=""):
     TempoBlancHP = 0.1654
     TempoRougeHC = 0.1328
     TempoRougeHP = 0.7324
-    AboTempo6kva = 12.8
-    AboTempo9kva = 16.0
-    AboTempo12kva = 19.29
-
+    BleuHC = 0.1828
+    BleuHP = 0.246
+    ZenHPEco = 0.2228
+    ZenHCEco = 0.1295
+    ZenHPSobriete = 0.6712
+    ZenHCSobriete = 0.2228
     BleuBase = 0.2276
 
     Abonnement = {
@@ -166,40 +168,11 @@ def doStuff(puissance, enedisFileStream=""):
                     "12":19.27,
                 }
             }
-    AboBleu3kva = 9.47
-    AboBleu6kva = 12.44
-    AboBleu9kva = 15.63
-    AboBleu12kva = 18.89
-
-    BleuHC = 0.1828
-    BleuHP = 0.246
-    AboHC6kva = 12.85
-    AboHP9kva = 16.55
-    AboHP12kva = 19.97
-
-    ZenHPEco = 0.2228
-    ZenHCEco = 0.1295
-    ZenHPSobriete = 0.6712
-    ZenHCSobriete = 0.2228
-    ZenAbo6kva = 12.62
-    ZenAbo9kva = 15.99
-    ZenAbo12kva = 19.27
 
     # Dictionnaire des jours bleu blanc rouge. Chaque élément est un tuple (date, couleur)
     CalBar = getTempoCalendar()
     # Dictionnaire des jours eco/sobriété de l'offre ZenFlex
     CalZen = getZenCalendar()
-
-    # Nombre de mois dans le fichier CSV de consommation de l'utilisateur. Par défaut 12
-    nbMois = 12
-    PremierMois = 0
-    DernierMois = 0
-
-    # Initialisation des sommes pour chacun des forfaits testés
-    simulTempo, simulBase, simulHCHP, simulZen = 0.0, 0.0, 0.0, 0.0
-
-    # Consommation en HP et HC
-    ConsoHP, ConsoHC = 0.0, 0.0
 
     baseCounter = AboCounter("Base")
     baseCounter.setPricing({"HP":BleuBase})
