@@ -1,6 +1,5 @@
 import urllib
 import requests
-import pandas as pd
 
 from api_config import *
 # Merci https://github.com/ReinboldV/api_rte
@@ -44,8 +43,6 @@ def get_tempo(start_date, end_date,
 
     token_type, access_token = get_token(oauth_url=oauth_url, client_id=client_id, client_secret=client_secret)
     r_json = get_tempo_json(start_date, end_date, token_type, access_token, url_tempo=url_tempo)
-    #df = json_to_pd_tempo(r_json)
-
     return r_json
 
 
@@ -97,30 +94,3 @@ def get_tempo_json(start_date, end_date, token_type, access_token, url_tempo=URL
 
     return r.json()
 
-
-def _parse_json_values(values):
-    """ Convert RTE data data from dictionnry form to pandas DataFrame.
-
-    :param values:
-    :return: pandas.DataFrame
-    """
-    df = pd.DataFrame.from_dict(values)
-    df.index = df.start_date
-    df.start_date = pd.to_datetime(df.start_date, format='%Y-%m-%d %H:%M:%S', utc=True)
-    df.index = pd.to_datetime(df.index, format='%Y-%m-%d %H:%M:%S', utc=True)
-    df.updated_date = pd.to_datetime(df.updated_date, format='%Y-%m-%d %H:%M:%S', utc=True)
-    df.end_date = pd.to_datetime(df.end_date, format='%Y-%m-%d %H:%M:%S', utc=True)
-    df.sort_index(inplace=True)
-
-    return df
-
-
-def json_to_pd_tempo(r_tempo):
-    """ Convert Tempo RTE data from json to pandas data frame
-
-    :param r_tempo:
-    :return: pandas.DataFrame
-    """
-    values_dict = r_tempo.get('tempo_like_calendars').get('values')
-    df = _parse_json_values(values_dict)
-    return df
