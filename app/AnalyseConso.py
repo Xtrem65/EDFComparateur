@@ -26,11 +26,12 @@ import csv
 from datetime import datetime, timedelta
 from aboCounter import AboCounter
 from rteCommunicator import RteCommunicator
+from earthWatcher import EarthWatcher
 
 def processFile(csvFile, priceCounters):
-
     lecteur = csv.reader(csvFile, delimiter=';')
     i = 0
+    earthWatcher = EarthWatcher()
     
     for ligne in lecteur:
         # Gestion simpliste de l'entête du CSV : si le 5e caractère de la ligne n'est pas un tiret (donc une date), ignorer la ligne
@@ -51,6 +52,7 @@ def processFile(csvFile, priceCounters):
             heure = date_heure[11:]
             for counter in priceCounters:
                 counter.addConsummatedHour(consommation,heure,jour)
+            earthWatcher.addConsummatedHour(consommation,heure,jour)
     
     # Calcul du nombre de mois que recouvre le fichier CSV
     DerniereDate = datetime.fromisoformat(date_heure.replace("Z", "+00:00"))
@@ -64,7 +66,7 @@ def processFile(csvFile, priceCounters):
     for counter in priceCounters:
         counter.setNbMoisAbo(nbMois)
 
-    return priceCounters
+    return priceCounters, earthWatcher
 
 
 def getZenCalendar():
@@ -200,14 +202,14 @@ def doStuff(puissance, enedisFileStream=""):
     if enedisFileStream == "":
         print("Using Example Dataset")
         with open(chemin_csv, newline='', encoding='utf-8-sig') as csvfile:
-            priceCounters = processFile(csvfile,priceCounters)
+            priceCounters, earthWatcher = processFile(csvfile,priceCounters)
     else: 
         print("Using shared dataset")
         #Checker le format
         #Appeller processFile avec le fichier importé (attention csv_reader attends un vrai fichier)
-        priceCounters = processFile(enedisFileStream,priceCounters)
+        priceCounters, earthWatcher = processFile(enedisFileStream,priceCounters)
 
-    return priceCounters
+    return priceCounters, earthWatcher
 
 
 if __name__ == '__main__':

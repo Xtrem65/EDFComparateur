@@ -144,8 +144,36 @@
         <div class="table-responsive">
             <table class="comparison-table">
                 <tr>
+                    <th>kwh</th>
+                    <th>Taux d'erreur</th>
+                    <th> Total CO2 (grammes)</th>
+                    <th> Consommation Nucléaire</th>
+                    <th> Consommation Hydraulique</th>
+                    <th> Consommation Eolienne</th>
+                    <th> Consommation Solaire</th>
+                    <th> Consommation BioEnergies</th>
+                    <th> Consommation Fossiles</th>
+                    <th> Consommation Echanges</th>
+                </tr>
+                <tr>
+                    <td>{{ earthWatcher.getTotalConso() }}</td>
+                    <td>{{ earthWatcher.getFiabilité() }}</td>
+                    <td>{{ earthWatcher.getCO2()}}</td>
+                    <th>{{ earthWatcher.getNuke()}}</th>
+                    <th>{{ earthWatcher.getHydraulique()}}</th>
+                    <th>{{ earthWatcher.getEolienne()}}</th>
+                    <th>{{ earthWatcher.getSolaire()}}</th>
+                    <th>{{ earthWatcher.getBioenergies()}}</th>
+                    <th>{{ earthWatcher.getFossiles()}}</th>
+                    <th>{{ earthWatcher.getEchanges()}}</th>
+                </tr>
+            </table>
+        </div>
+        <div class="table-responsive">
+            <table class="comparison-table">
+                <tr>
                     <th>Nom</th>
-                    <th>Watts</th>
+                    <th>kwh</th>
                     <th class="total-column">Prix Total</th>
                     <th>Prix Abonnement</th>
                     <th>Prix Consommation</th>
