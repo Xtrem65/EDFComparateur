@@ -46,32 +46,6 @@ def get_tempo(start_date, end_date,
     return r_json
 
 
-def get_prod(start_date, end_date, production_type=None, type=None,
-             oauth_url=OAUTH_URL,
-             client_id=EDF_CLIENT_ID,
-             client_secret=EDF_CLIENT_SECRET,
-             url_prod=URL_PROD):
-    """ General method to download RTE forecasts production
-
-    :param start_date:
-    :param end_date:
-    :param production_type:
-    :param type:
-    :param oauth_url:
-    :param client_id:
-    :param client_secret:
-    :param url_prod:
-    :return:
-    """
-    token_type, access_token = get_token(oauth_url=oauth_url, client_id=client_id,
-                                         client_secret=client_secret)
-    res_json = get_production_json(start_date, end_date, token_type, access_token,
-                                   production_type=production_type, type=type, url_prod=url_prod)
-
-    res = parse_production(res_json)
-    return res
-
-
 def get_tempo_json(start_date, end_date, token_type, access_token, url_tempo=URL_TEMPO):
     """
 
