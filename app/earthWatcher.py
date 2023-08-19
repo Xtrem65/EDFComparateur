@@ -154,7 +154,15 @@ class EarthWatcher:
 
 
         self.totalDetailedConso = self.getEmptyConsoDict()
-        self.monthlyDetailedConso = {}
+        self.monthlyDetailedConso = {
+            "Nucleaire" : {},
+            "Hydraulique" : {},
+            "Eolienne": {},
+            "Solaire" : {},
+            "BioEnergies" : {},
+            "Fossiles" : {},
+            "Echanges" : {},
+            }
 
         #Si on trouve pas de données de prod pour un créneau, on utilise le dernier créneau fonctionnel, et on mémorise le volume incertain ici
         self.totalConsoEnIncertitude=0
@@ -162,6 +170,8 @@ class EarthWatcher:
 
     def getTotalDetailedConso(self):
         return self.totalDetailedConso
+    def getMonthlyDetailedConso(self):
+        return self.monthlyDetailedConso
     def getFiabilité(self):
         return "%.2f%%" % ((self.totalConsoEnIncertitude/self.totalConso)*100)
     def getTotalConso(self):
@@ -179,24 +189,28 @@ class EarthWatcher:
             "Fossiles" : self.totalConsoFossiles,
             "Echanges" : self.totalConsoEchanges,
         }
-    def getColorByOrigin(self):
+    def getColorList(self):
         return {
-            "Nucleaire" : "#0066CC",
-            "Hydraulique" : "#009900",
-            "Eolienne": "#FFCC00",
-            "Solaire" : "#FF6600",
-            "BioEnergies" : "#99004C",
-            "Fossiles" : "#808080",
-            "Echanges" : "#606060" #"#3399FF", 
+            "Nucleaire" : "#58d0e8",
+            "Hydraulique" : "#112599",
+            "Eolienne": "#99004C",
+            "Solaire" : "#FFCC00",
+            "BioEnergies" : "#009900",
+            "Fossiles" : "#000000",
+            "Echanges" : "#606060"
         }
+    def getColorByOrigin(self, source):
+        return self.getColorList()[source]
+        
     def addConsoToCounters(self, conso, jour):
         currentMonth = jour[:-3]
-        if currentMonth not in self.monthlyDetailedConso:
-            self.monthlyDetailedConso[currentMonth] = self.getEmptyConsoDict()
+        for key, value in self.monthlyDetailedConso.items():
+            if currentMonth not in self.monthlyDetailedConso[key]: 
+                self.monthlyDetailedConso[key][currentMonth] = 0
 
         for key in conso.keys():
             self.totalDetailedConso[key] += conso[key]
-            self.monthlyDetailedConso[currentMonth][key] += conso[key]
+            self.monthlyDetailedConso[key][currentMonth] += conso[key]
 
     def addConsummatedHour(self, conso, heure, jour):
         heure=heure[:-3]

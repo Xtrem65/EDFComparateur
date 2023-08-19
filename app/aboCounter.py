@@ -10,6 +10,7 @@ class AboCounter:
         self.totalConso = 0
         self.details = defaultdict(lambda: 0.0)
         self.pricing = {}
+        self.aboPricingPlan = {}
         self.errors = {}
 
         self.aboMensuel = 0
@@ -21,15 +22,20 @@ class AboCounter:
 
 
 
-    def setAboMensuel(self, abo):
-        self.aboMensuel=abo
+    def configureAboPricingPlans(self, pricingPlan):
+        self.aboPricingPlan = pricingPlan
+
+
+    def setPuissance(self, puissance):
+        self.aboMensuel=self.aboPricingPlan[puissance] or 0
+
     def setNbMoisAbo(self, nbMois):
         self.nbMoisAbo = nbMois
 
     def getAboMensuel(self):
         return self.aboMensuel
     
-    def setPricing(self, pricing):
+    def configureConsoPricingPlans(self, pricing):
         self.pricing = pricing
 
     def setCalendrierJours(self, calJour):

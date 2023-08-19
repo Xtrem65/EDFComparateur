@@ -140,7 +140,7 @@
                     {
                         label: 'Energie Consommée',
                         data: Object.values({{ earthWatcher.getTotalDetailedConso() | tojson | safe }}),
-                        backgroundColor: Object.values({{ earthWatcher.getColorByOrigin() | tojson | safe }}),
+                        backgroundColor: Object.values({{ earthWatcher.getColorList() | tojson | safe }}),
                     }]
                 },
                 options: {
@@ -158,12 +158,49 @@
             });
         }
 
+        function generateMonthlyOriginChart(ctx) {
+            return new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: Object.keys({{ earthWatcher.getMonthlyDetailedConso()["Nucleaire"] | tojson | safe }}),
+                    datasets: [
+                    {% for origin, volume in earthWatcher.getMonthlyDetailedConso().items() %}
+                    {
+                        label: "{{origin}}",
+                        data: Object.values({{volume | tojson | safe }}),
+                        backgroundColor: "{{earthWatcher.getColorByOrigin(origin)}}",
+                    },
+                    {% endfor %}
+                ]
+                },
+                options: {
+                    plugins: {
+                    title: {
+                        display: true,
+                        text: 'Origine de votre Energie - vue mensuelle'
+                    },
+                    },
+                    responsive: true,
+                    scales: {
+                    x: {
+                        stacked: true,
+                    },
+                    y: {
+                        stacked: true
+                    }
+                    }
+                }
+            });
+        }
+
         document.addEventListener('DOMContentLoaded', function () {
             var priceChartHtmlctx = document.getElementById('priceChart').getContext('2d');
+            var monthlyOriginChartHtmlctx = document.getElementById('monthlyOriginChart').getContext('2d');
             var originChartHtmlctx = document.getElementById('originChart').getContext('2d');
 
             var priceChart = generatePriceChart(priceChartHtmlctx)
-            var priceChart = generateOriginChart(originChartHtmlctx)
+            var originChart = generateOriginChart(originChartHtmlctx)
+            var monthlyOriginChart =  generateMonthlyOriginChart(monthlyOriginChartHtmlctx)
         });
     </script>
 </head>
@@ -192,6 +229,9 @@
                     {% endfor %}
                 </tr>
             </table>
+        </div>
+        <div id="chartContainer">
+            <canvas id="monthlyOriginChart"></canvas>
         </div>
         <div id="chartContainer">
             <canvas id="originChart"></canvas>

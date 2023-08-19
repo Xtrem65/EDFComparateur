@@ -177,27 +177,29 @@ def doStuff(puissance, enedisFileStream=""):
     CalZen = getZenCalendar()
 
     baseCounter = AboCounter("Base")
-    baseCounter.setPricing({"HP":BleuBase})
-    baseCounter.setAboMensuel(Abonnement["Base"][puissance])
+    baseCounter.configureConsoPricingPlans({"HP":BleuBase})
+    baseCounter.configureAboPricingPlans(Abonnement["Base"])
 
     tempoCounter = AboCounter("Tempo")
     tempoCounter.setCalendrierJours(CalBar)
     tempoCounter.setHeuresCreuses(HC)
-    tempoCounter.setPricing({"HP":{"BLUE":TempoBleuHP,"WHITE":TempoBlancHP,"RED":TempoRougeHP},"HC":{"BLUE":TempoBleuHC,"WHITE":TempoBlancHC,"RED":TempoRougeHC}})
-    tempoCounter.setAboMensuel(Abonnement["TEMPO"][puissance])
+    tempoCounter.configureConsoPricingPlans({"HP":{"BLUE":TempoBleuHP,"WHITE":TempoBlancHP,"RED":TempoRougeHP},"HC":{"BLUE":TempoBleuHC,"WHITE":TempoBlancHC,"RED":TempoRougeHC}})
+    tempoCounter.configureAboPricingPlans(Abonnement["TEMPO"])
     
     HCHPCounter = AboCounter("HCHP")
-    HCHPCounter.setPricing({"HP":BleuHP, "HC":BleuHC})
+    HCHPCounter.configureConsoPricingPlans({"HP":BleuHP, "HC":BleuHC})
     HCHPCounter.setHeuresCreuses(HC)
-    HCHPCounter.setAboMensuel(Abonnement["HCHP"][puissance])
+    HCHPCounter.configureAboPricingPlans(Abonnement["HCHP"])
 
     ZenCounter = AboCounter("Zen")
     ZenCounter.setCalendrierJours(CalZen)
     ZenCounter.setHeuresCreuses(HCZenFlex)
-    ZenCounter.setPricing({"HP":{"BLEU":ZenHPEco,"BLANC":ZenHPEco,"ROUGE":ZenHPSobriete},"HC":{"BLEU":ZenHCEco,"BLANC":ZenHCEco,"ROUGE":ZenHCSobriete}})
-    ZenCounter.setAboMensuel(Abonnement["ZEN"][puissance])
+    ZenCounter.configureConsoPricingPlans({"HP":{"BLEU":ZenHPEco,"BLANC":ZenHPEco,"ROUGE":ZenHPSobriete},"HC":{"BLEU":ZenHCEco,"BLANC":ZenHCEco,"ROUGE":ZenHCSobriete}})
+    ZenCounter.configureAboPricingPlans(Abonnement["ZEN"])
 
     priceCounters = [baseCounter, tempoCounter, HCHPCounter, ZenCounter]
+    for counter in priceCounters:
+        counter.setPuissance(puissance)
 
     if enedisFileStream == "":
         print("Using Example Dataset")
