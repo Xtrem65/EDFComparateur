@@ -28,10 +28,10 @@ def get_token(oauth_url=OAUTH_URL, client_id=EDF_CLIENT_ID, client_secret=EDF_CL
 
 
 def get_tempo(start_date, end_date,
-              oauth_url=OAUTH_URL,
-              client_id=EDF_CLIENT_ID,
-              client_secret=EDF_CLIENT_SECRET,
-              url_tempo=URL_TEMPO):
+                oauth_url=OAUTH_URL,
+                client_id=EDF_CLIENT_ID,
+                client_secret=EDF_CLIENT_SECRET,
+                url_tempo=URL_TEMPO):
     """
 
     :param client_secret:

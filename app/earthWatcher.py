@@ -187,6 +187,28 @@ class EarthWatcher:
     def getEchanges(self):
         return "%.2f (%.2f%%)" % (self.totalConsoEchanges, (self.totalConsoEchanges/self.totalConso)*100)
     
+    def getValueByOrigin(self):
+        return {
+            "Nucleaire" : self.totalConsoNuke,
+            "Hydraulique" : self.totalConsoHydrau,
+            "Eolienne": self.totalConsoEolienne,
+            "Solaire" : self.totalConsoSolaire,
+            "BioEnergies" : self.totalConsoBioEnergies,
+            "Fossiles" : self.totalConsoFossiles,
+            "Echanges" : self.totalConsoEchanges,
+        }
+    def getColorByOrigin(self):
+        return {
+            "Nucleaire" : "#0066CC",
+            "Hydraulique" : "#009900",
+            "Eolienne": "#FFCC00",
+            "Solaire" : "#FF6600",
+            "BioEnergies" : "#99004C",
+            "Fossiles" : "#808080",
+            "Echanges" : "#606060"
+            #"#3399FF",
+        }
+    
     def addConsummatedHour(self, conso, heure, jour):
         heure=heure[:-3]
 

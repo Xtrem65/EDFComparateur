@@ -97,18 +97,12 @@
             var popup = document.getElementById(elementId);
             popup.style.display = 'none';
         }
-
-        document.addEventListener('DOMContentLoaded', function () {
-            var ctx = document.getElementById('myChart').getContext('2d');
-            var myChart = new Chart(ctx, {
+        function generatePriceChart(ctx) {
+            return new Chart(ctx, {
                 type: 'bar',
                 data: {
                     labels: [{% for simulation in simulations %}"{{ simulation.name }}",{% endfor %}],
-                    datasets: [{
-                        label: 'Prix Total',
-                        data: [{% for simulation in simulations %}{{ simulation.getTotal() }},{% endfor %}],
-                        backgroundColor: '#003399', /* EDF blue color */
-                    },
+                    datasets: [
                     {
                         label: 'Prix Abonnement',
                         data: [{% for simulation in simulations %}{{ simulation.getTotalAbo() }},{% endfor %}],
@@ -122,7 +116,11 @@
                 },
                 options: {
                     scales: {
+                        x: {
+                            stacked: true
+                        },
                         y: {
+                            stacked: true,
                             beginAtZero: true,
                             title: {
                                 display: true,
@@ -132,6 +130,40 @@
                     }
                 }
             });
+        }
+        function generateOriginChart(ctx) {
+            return new Chart(ctx, {
+                type: 'pie',
+                data: {
+                    labels: Object.keys({{ earthWatcher.getValueByOrigin() | tojson | safe }}),
+                    datasets: [
+                    {
+                        label: 'Energie Consommée',
+                        data: Object.values({{ earthWatcher.getValueByOrigin() | tojson | safe }}),
+                        backgroundColor: Object.values({{ earthWatcher.getColorByOrigin() | tojson | safe }}),
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                    legend: {
+                        position: 'top',
+                    },
+                    title: {
+                        display: true,
+                        text: 'Origine de votre energie'
+                    }
+                    }
+                },
+            });
+        }
+
+        document.addEventListener('DOMContentLoaded', function () {
+            var priceChartHtmlctx = document.getElementById('priceChart').getContext('2d');
+            var originChartHtmlctx = document.getElementById('originChart').getContext('2d');
+
+            var priceChart = generatePriceChart(priceChartHtmlctx)
+            var priceChart = generateOriginChart(originChartHtmlctx)
         });
     </script>
 </head>
@@ -168,6 +200,9 @@
                     <th>{{ earthWatcher.getEchanges()}}</th>
                 </tr>
             </table>
+        </div>
+        <div id="chartContainer">
+            <canvas id="originChart"></canvas>
         </div>
         <div class="table-responsive">
             <table class="comparison-table">
@@ -208,7 +243,7 @@
             </table>
         </div>
         <div id="chartContainer">
-            <canvas id="myChart"></canvas>
+            <canvas id="priceChart"></canvas>
         </div>
     </div>
 </body>
