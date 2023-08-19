@@ -1,6 +1,7 @@
 from collections import defaultdict
 
 from datetime import datetime, timedelta
+import traceback
 
 
 class AboCounter:
@@ -11,13 +12,13 @@ class AboCounter:
         self.details = defaultdict(lambda: 0.0)
         self.pricing = {}
         self.aboPricingPlan = {}
-        self.errors = {}
+        self.errors = defaultdict(None)
 
         self.aboMensuel = 0
         self.nbMoisAbo = 1
         self.totalConsommatedWatts = 0
 
-        self.calendrierJours = {}
+        self.calendrierJours = None
         self.heuresCreuses = []
 
 
@@ -27,7 +28,11 @@ class AboCounter:
 
 
     def setPuissance(self, puissance):
-        self.aboMensuel=self.aboPricingPlan[puissance] or 0
+        try:
+            self.aboMensuel=self.aboPricingPlan[puissance]
+        except BaseException as e:
+            self.aboMensuel = 0
+            self.errors["Cet abonnement n'est pas disponible avec cette puissance"] = "Aucune tarification d'abonnement trouvée pour la puissance " + puissance
 
     def setNbMoisAbo(self, nbMois):
         self.nbMoisAbo = nbMois
@@ -41,15 +46,14 @@ class AboCounter:
     def setCalendrierJours(self, calJour):
         self.calendrierJours = calJour
 
-    def setHeuresCreuses(self, heuresCreuses):
+    def configureHeuresCreuses(self, heuresCreuses):
         self.heuresCreuses = heuresCreuses
 
     def getCouleurFromJour(self, jour):
-        
-        if jour in self.calendrierJours:
-            return self.calendrierJours[jour]
-        else:
+        if self.calendrierJours is None:
             return ""
+        else:
+            return self.calendrierJours.get(jour)
     
     def getTarificationFromHeure(self, heure):
         heure = datetime.strptime(heure,"%H:%M:%S").hour
@@ -76,7 +80,7 @@ class AboCounter:
             couleur = self.getCouleurFromJour(jour)
             tarification = self.getTarificationFromHeure(heure)
             instantTarif = self.getInstantTarification(couleur, tarification)
-        except:
+        except BaseException as e:
             self.errors[jour]="Could not find tarification"
             return
         self.totalConsommatedWatts = self.totalConsommatedWatts + conso

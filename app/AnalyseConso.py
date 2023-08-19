@@ -27,6 +27,7 @@ from datetime import datetime, timedelta
 from aboCounter import AboCounter
 from rteCommunicator import RteCommunicator
 from earthWatcher import EarthWatcher
+from tempoCalGetter import TempoCalGetter
 
 def processFile(csvFile, priceCounters):
     lecteur = csv.reader(csvFile, delimiter=';')
@@ -85,9 +86,6 @@ def getZenCalendar():
             # et la couleur comme valeur associée
             data[date_obj.strftime("%Y-%m-%d")] = ligne[1]
     return data
-def getTempoCalendar():
-    RTE = RteCommunicator()
-    return RTE.getTempo()
 
 def doStuff(puissance, enedisFileStream=""):
     #################################################################################################
@@ -170,9 +168,10 @@ def doStuff(puissance, enedisFileStream=""):
                     "12":19.27,
                 }
             }
-
     # Dictionnaire des jours bleu blanc rouge. Chaque élément est un tuple (date, couleur)
-    CalBar = getTempoCalendar()
+    RTE = RteCommunicator()
+    #tempoCalendar = RTE.getTempo()
+
     # Dictionnaire des jours eco/sobriété de l'offre ZenFlex
     CalZen = getZenCalendar()
 
@@ -181,19 +180,19 @@ def doStuff(puissance, enedisFileStream=""):
     baseCounter.configureAboPricingPlans(Abonnement["Base"])
 
     tempoCounter = AboCounter("Tempo")
-    tempoCounter.setCalendrierJours(CalBar)
-    tempoCounter.setHeuresCreuses(HC)
+    tempoCounter.setCalendrierJours(TempoCalGetter())
+    tempoCounter.configureHeuresCreuses(HC)
     tempoCounter.configureConsoPricingPlans({"HP":{"BLUE":TempoBleuHP,"WHITE":TempoBlancHP,"RED":TempoRougeHP},"HC":{"BLUE":TempoBleuHC,"WHITE":TempoBlancHC,"RED":TempoRougeHC}})
     tempoCounter.configureAboPricingPlans(Abonnement["TEMPO"])
     
     HCHPCounter = AboCounter("HCHP")
     HCHPCounter.configureConsoPricingPlans({"HP":BleuHP, "HC":BleuHC})
-    HCHPCounter.setHeuresCreuses(HC)
+    HCHPCounter.configureHeuresCreuses(HC)
     HCHPCounter.configureAboPricingPlans(Abonnement["HCHP"])
 
     ZenCounter = AboCounter("Zen")
     ZenCounter.setCalendrierJours(CalZen)
-    ZenCounter.setHeuresCreuses(HCZenFlex)
+    ZenCounter.configureHeuresCreuses(HCZenFlex)
     ZenCounter.configureConsoPricingPlans({"HP":{"BLEU":ZenHPEco,"BLANC":ZenHPEco,"ROUGE":ZenHPSobriete},"HC":{"BLEU":ZenHCEco,"BLANC":ZenHCEco,"ROUGE":ZenHCSobriete}})
     ZenCounter.configureAboPricingPlans(Abonnement["ZEN"])
 

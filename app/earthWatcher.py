@@ -1,7 +1,6 @@
 from collections import defaultdict
 import requests
 import datetime
-import traceback
 import pandas as pd
 ########  ODRE #########
 """
@@ -71,7 +70,7 @@ def getProductionDetails(date):
 
         paramsReadyDateFrom = date_from.strftime("%Y-%m-%dT%H:%M:%S")
         paramsReadyDateTo = date_to.strftime("%Y-%m-%dT%H:%M:%S")
-
+        print("Retrieving Eco2Mix details  ("+ paramsReadyDateFrom+" to "+paramsReadyDateTo+")")
         params = {
             'dataset':'eco2mix-national-tr',
             #'refine.date_heure': date, #Fonctionne pour query un seul jour
@@ -236,5 +235,4 @@ class EarthWatcher:
 
         #On memorise ces données de prod pour les reutiliser s'il nous manque des infos sur le prochain créneau
         self.lastWorkingProductionDetails = heureEnCours
-
 

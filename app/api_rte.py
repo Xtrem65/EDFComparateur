@@ -4,7 +4,6 @@ import requests
 from api_config import *
 
 ######## RTE / TEMPO #########
-
 # Merci https://github.com/ReinboldV/api_rte
 def get_token(oauth_url=OAUTH_URL, client_id=EDF_CLIENT_ID, client_secret=EDF_CLIENT_SECRET):
     """
@@ -45,8 +44,8 @@ def get_tempo(start_date, end_date,
 
     token_type, access_token = get_token(oauth_url=oauth_url, client_id=client_id, client_secret=client_secret)
     r_json = get_tempo_json(start_date, end_date, token_type, access_token, url_tempo=url_tempo)
+    print("Retrieving Tempo Calendar ("+ start_date.strftime("%Y-%m-%d")+" to "+end_date.strftime("%Y-%m-%d")+")")
     return r_json
-
 
 def get_tempo_json(start_date, end_date, token_type, access_token, url_tempo=URL_TEMPO):
     """
