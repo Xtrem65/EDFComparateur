@@ -25,7 +25,6 @@
 import csv
 from datetime import datetime, timedelta
 from aboCounter import AboCounter
-from rteCommunicator import RteCommunicator
 from earthWatcher import EarthWatcher
 from tempoCalGetter import TempoCalGetter
 
@@ -60,10 +59,6 @@ def processFile(csvFile, priceCounters):
 
     # Durée en mois couverte par le CSV 
     nbMois = int((DerniereDate - PremiereDate).days / 30)
-    DernierMois = int(date_heure[5:7])
-    print(f"Nombre de lignes traitées : {i}")
-    # nbMois = DernierMois - PremierMois + 1
-    print(f"Nombre de mois dans le CSV : {nbMois}")
     for counter in priceCounters:
         counter.setNbMoisAbo(nbMois)
 
@@ -168,9 +163,6 @@ def doStuff(puissance, enedisFileStream=""):
                     "12":19.27,
                 }
             }
-    # Dictionnaire des jours bleu blanc rouge. Chaque élément est un tuple (date, couleur)
-    RTE = RteCommunicator()
-    #tempoCalendar = RTE.getTempo()
 
     # Dictionnaire des jours eco/sobriété de l'offre ZenFlex
     CalZen = getZenCalendar()
@@ -206,7 +198,6 @@ def doStuff(puissance, enedisFileStream=""):
             priceCounters, earthWatcher = processFile(csvfile,priceCounters)
     else: 
         print("Using shared dataset")
-        #Checker le format
         #Appeller processFile avec le fichier importé (attention csv_reader attends un vrai fichier)
         priceCounters, earthWatcher = processFile(enedisFileStream,priceCounters)
 
