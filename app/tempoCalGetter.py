@@ -36,5 +36,4 @@ class TempoCalGetter:
         return
 
     def get(self, jour):
-        value = getTempoFromAPI(jour) 
         return getTempoFromAPI(jour)
