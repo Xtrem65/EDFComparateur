@@ -137,55 +137,37 @@ def getProductionDetails(date):
     return GLOBAL_PRODUCTION_DATA_DETAILS[date]
 
 class EarthWatcher:
+    def getEmptyConsoDict(self):
+        return {
+            "Nucleaire" : 0,
+            "Hydraulique" : 0,
+            "Eolienne": 0,
+            "Solaire" : 0,
+            "BioEnergies" : 0,
+            "Fossiles" : 0,
+            "Echanges" : 0,
+            }
     
     def __init__(self):
         self.totalConso = 0
         self.totalCO2 = 0
 
-        self.totalConsoNuke = 0
-        self.totalConsoEolienne = 0
-        self.totalConsoHydrau = 0
-        self.totalConsoSolaire = 0
-        self.totalConsoBioEnergies = 0
-        self.totalConsoFossiles = 0
-        self.totalConsoEchanges = 0
-        
+
+        self.totalDetailedConso = self.getEmptyConsoDict()
+        self.monthlyDetailedConso = {}
+
         #Si on trouve pas de données de prod pour un créneau, on utilise le dernier créneau fonctionnel, et on mémorise le volume incertain ici
         self.totalConsoEnIncertitude=0
         self.lastWorkingProductionDetails = {}
 
-        self.details = defaultdict(lambda: 0.0)
-        self.pricing = {}
-        self.errors = {}
-
-        self.aboMensuel = 0
-        self.nbMoisAbo = 1
-        self.totalConsommatedWatts = 0
-
-        self.calendrierJours = {}
-        self.heuresCreuses = []
-
-
+    def getTotalDetailedConso(self):
+        return self.totalDetailedConso
     def getFiabilité(self):
         return "%.2f%%" % ((self.totalConsoEnIncertitude/self.totalConso)*100)
     def getTotalConso(self):
         return round(self.totalConso,2)
     def getCO2(self):
         return round(self.totalCO2,2)
-    def getNuke(self):
-        return "%.2f (%.2f%%)" % (self.totalConsoNuke, (self.totalConsoNuke/self.totalConso)*100)
-    def getHydraulique(self):
-        return "%.2f (%.2f%%)" % (self.totalConsoHydrau, (self.totalConsoHydrau/self.totalConso)*100)
-    def getEolienne(self):
-        return "%.2f (%.2f%%)" % (self.totalConsoEolienne, (self.totalConsoEolienne/self.totalConso)*100)
-    def getSolaire(self):
-        return "%.2f (%.2f%%)" % (self.totalConsoSolaire, (self.totalConsoSolaire/self.totalConso)*100)
-    def getBioenergies(self):
-        return "%.2f (%.2f%%)" % (self.totalConsoBioEnergies, (self.totalConsoBioEnergies/self.totalConso)*100)
-    def getFossiles(self):
-        return "%.2f (%.2f%%)" % (self.totalConsoFossiles, (self.totalConsoFossiles/self.totalConso)*100)
-    def getEchanges(self):
-        return "%.2f (%.2f%%)" % (self.totalConsoEchanges, (self.totalConsoEchanges/self.totalConso)*100)
     
     def getValueByOrigin(self):
         return {
@@ -205,10 +187,17 @@ class EarthWatcher:
             "Solaire" : "#FF6600",
             "BioEnergies" : "#99004C",
             "Fossiles" : "#808080",
-            "Echanges" : "#606060"
-            #"#3399FF",
+            "Echanges" : "#606060" #"#3399FF", 
         }
-    
+    def addConsoToCounters(self, conso, jour):
+        currentMonth = jour[:-3]
+        if currentMonth not in self.monthlyDetailedConso:
+            self.monthlyDetailedConso[currentMonth] = self.getEmptyConsoDict()
+
+        for key in conso.keys():
+            self.totalDetailedConso[key] += conso[key]
+            self.monthlyDetailedConso[currentMonth][key] += conso[key]
+
     def addConsummatedHour(self, conso, heure, jour):
         heure=heure[:-3]
 
@@ -220,14 +209,16 @@ class EarthWatcher:
             heureEnCours = self.lastWorkingProductionDetails
 
         self.totalCO2 = self.totalCO2 + (heureEnCours["gCO2/kWh"])* conso
-
-        self.totalConsoNuke = self.totalConsoNuke + (conso * heureEnCours["nukePercent"])
-        self.totalConsoEolienne = self.totalConsoEolienne + (conso * heureEnCours["eolienPercent"])
-        self.totalConsoHydrau = self.totalConsoHydrau + (conso * heureEnCours["hydrauPercent"])
-        self.totalConsoSolaire = self.totalConsoSolaire + (conso * heureEnCours["solairePercent"])
-        self.totalConsoBioEnergies = self.totalConsoBioEnergies + (conso * heureEnCours["bioenergiesPercent"])
-        self.totalConsoFossiles = self.totalConsoFossiles + (conso * heureEnCours["fossilePercent"])
-        self.totalConsoEchanges = self.totalConsoEchanges + (conso * heureEnCours["echangesPercent"])
+        currentConso = {
+            "Nucleaire" : conso * heureEnCours["nukePercent"],
+            "Hydraulique" : conso * heureEnCours["hydrauPercent"],
+            "Eolienne": conso * heureEnCours["eolienPercent"],
+            "Solaire" : conso * heureEnCours["solairePercent"],
+            "BioEnergies" : conso * heureEnCours["bioenergiesPercent"],
+            "Fossiles" : conso * heureEnCours["fossilePercent"],
+            "Echanges" : conso * heureEnCours["echangesPercent"],
+        }
+        self.addConsoToCounters(currentConso, jour)
 
         #On memorise ces données de prod pour les reutiliser s'il nous manque des infos sur le prochain créneau
         self.lastWorkingProductionDetails = heureEnCours

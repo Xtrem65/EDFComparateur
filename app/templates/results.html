@@ -135,11 +135,11 @@
             return new Chart(ctx, {
                 type: 'pie',
                 data: {
-                    labels: Object.keys({{ earthWatcher.getValueByOrigin() | tojson | safe }}),
+                    labels: Object.keys({{ earthWatcher.getTotalDetailedConso() | tojson | safe }}),
                     datasets: [
                     {
                         label: 'Energie Consommée',
-                        data: Object.values({{ earthWatcher.getValueByOrigin() | tojson | safe }}),
+                        data: Object.values({{ earthWatcher.getTotalDetailedConso() | tojson | safe }}),
                         backgroundColor: Object.values({{ earthWatcher.getColorByOrigin() | tojson | safe }}),
                     }]
                 },
@@ -179,25 +179,17 @@
                     <th>kwh</th>
                     <th>Taux d'erreur</th>
                     <th> Total CO2 (grammes)</th>
-                    <th> Consommation Nucléaire</th>
-                    <th> Consommation Hydraulique</th>
-                    <th> Consommation Eolienne</th>
-                    <th> Consommation Solaire</th>
-                    <th> Consommation BioEnergies</th>
-                    <th> Consommation Fossiles</th>
-                    <th> Consommation Echanges</th>
+                    {% for origin, volume in earthWatcher.getTotalDetailedConso().items() %}
+                    <th> Consommation {{origin}} </th>
+                    {% endfor %}
                 </tr>
                 <tr>
                     <td>{{ earthWatcher.getTotalConso() }}</td>
                     <td>{{ earthWatcher.getFiabilité() }}</td>
                     <td>{{ earthWatcher.getCO2()}}</td>
-                    <th>{{ earthWatcher.getNuke()}}</th>
-                    <th>{{ earthWatcher.getHydraulique()}}</th>
-                    <th>{{ earthWatcher.getEolienne()}}</th>
-                    <th>{{ earthWatcher.getSolaire()}}</th>
-                    <th>{{ earthWatcher.getBioenergies()}}</th>
-                    <th>{{ earthWatcher.getFossiles()}}</th>
-                    <th>{{ earthWatcher.getEchanges()}}</th>
+                    {% for origin, volume in earthWatcher.getTotalDetailedConso().items() %}
+                    <th> {{volume | round(0)}} ({{(volume/earthWatcher.getTotalConso()*100) | round(2)}}%)</th>
+                    {% endfor %}
                 </tr>
             </table>
         </div>
