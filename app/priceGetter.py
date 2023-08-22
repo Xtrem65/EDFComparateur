@@ -68,12 +68,12 @@ class PriceGetter:
                             pricing[parsing][m.group(1)] = {
                                 "Abonnement" : float(m.group(2).replace(',','.')),
                                 "Consommation" : {
-                                    "HP": {
+                                    "HC": {
                                         "BLUE" : float(m.group(3).replace(',','.'))/100,
                                         "WHITE" : float(m.group(5).replace(',','.'))/100,
                                         "RED" : float(m.group(7).replace(',','.'))/100,
                                     },
-                                    "HC": {
+                                    "HP": {
                                         "BLUE" : float(m.group(4).replace(',','.'))/100,
                                         "WHITE" : float(m.group(6).replace(',','.'))/100,
                                         "RED" : float(m.group(8).replace(',','.'))/100,
