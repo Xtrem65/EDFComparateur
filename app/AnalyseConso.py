@@ -113,20 +113,11 @@ def doStuff(puissance, enedisFileStream=""):
     # Données d'origine  https://particulier.edf.fr/content/dam/2-Actifs/Documents/Offres/Grille_prix_Tarif_Bleu.pdf
     # Tarifs au 01/08/2023
     
-    TempoBleuHC = 0.1056
-    TempoBleuHP = 0.1369
-    TempoBlancHC = 0.1246
-    TempoBlancHP = 0.1654
-    TempoRougeHC = 0.1328
-    TempoRougeHP = 0.7324
-    BleuHC = 0.1828
-    BleuHP = 0.246
     ZenHPEco = 0.2228
     ZenHCEco = 0.1295
     ZenHPSobriete = 0.6712
     ZenHCSobriete = 0.2228
-    BleuBase = 0.2276
-
+    
     fallbackAbonnement = {
                 "ZEN": {
                     "6": {
