@@ -27,6 +27,7 @@ from datetime import datetime, timedelta
 from aboCounter import AboCounter
 from earthWatcher import EarthWatcher
 from tempoCalGetter import TempoCalGetter
+from priceGetter import PriceGetter
 
 def processFile(csvFile, priceCounters):
     lecteur = csv.reader(csvFile, delimiter=';')
@@ -111,7 +112,7 @@ def doStuff(puissance, enedisFileStream=""):
     # Attention, les données d'origine sont pour des kW.h mais les données du CSV son des W.h
     # Données d'origine  https://particulier.edf.fr/content/dam/2-Actifs/Documents/Offres/Grille_prix_Tarif_Bleu.pdf
     # Tarifs au 01/08/2023
-
+    
     TempoBleuHC = 0.1056
     TempoBleuHP = 0.1369
     TempoBlancHC = 0.1246
@@ -126,67 +127,45 @@ def doStuff(puissance, enedisFileStream=""):
     ZenHCSobriete = 0.2228
     BleuBase = 0.2276
 
-    Abonnement = {
-                "Base": {
-                    "3":9.47,
-                    "6":12.44,
-                    "9":15.63,
-                    "12":18.89,
-                    "15":21.92,
-                    "18":24.92,
-                    "24":31.60,
-                    "30":37.29,
-                    "36":44.66
-                },
-                "HCHP": {
-                    "6":12.85,
-                    "9":16.55,
-                    "12":19.97,
-                    "15":23.24,
-                    "18":26.48,
-                    "24":33.28,
-                    "30":39.46,
-                    "36":44.64
-                },
-                "TEMPO": {
-                    "6":12.80,
-                    "9":16.00,
-                    "12":19.29,
-                    "15":22.30,
-                    "18":25.29,
-                    "30":38.13,
-                    "36":44.28
-                },
+    fallbackAbonnement = {
                 "ZEN": {
-                    "6":12.62,
-                    "9":15.99,
-                    "12":19.27,
+                    "6": {
+                        "Abonnement":12.62,
+                        "Consommation": {"HP":{"BLEU":ZenHPEco,"BLANC":ZenHPEco,"ROUGE":ZenHPSobriete},"HC":{"BLEU":ZenHCEco,"BLANC":ZenHCEco,"ROUGE":ZenHCSobriete}}
+                    },
+                    "9": {
+                        "Abonnement":15.99,
+                        "Consommation": {"HP":{"BLEU":ZenHPEco,"BLANC":ZenHPEco,"ROUGE":ZenHPSobriete},"HC":{"BLEU":ZenHCEco,"BLANC":ZenHCEco,"ROUGE":ZenHCSobriete}}
+                        },
+                    "12": {
+                        "Abonnement":19.27,
+                        "Consommation": {"HP":{"BLEU":ZenHPEco,"BLANC":ZenHPEco,"ROUGE":ZenHPSobriete},"HC":{"BLEU":ZenHCEco,"BLANC":ZenHCEco,"ROUGE":ZenHCSobriete}}
+                    }
                 }
             }
+
+    priceGetter = PriceGetter()
+    dynamicPricing = priceGetter.getPrice()
 
     # Dictionnaire des jours eco/sobriété de l'offre ZenFlex
     CalZen = getZenCalendar()
 
     baseCounter = AboCounter("Base")
-    baseCounter.configureConsoPricingPlans({"HP":BleuBase})
-    baseCounter.configureAboPricingPlans(Abonnement["Base"])
+    baseCounter.configurePricingPlans(dynamicPricing["Base"])
 
     tempoCounter = AboCounter("Tempo")
     tempoCounter.setCalendrierJours(TempoCalGetter())
     tempoCounter.configureHeuresCreuses(HC)
-    tempoCounter.configureConsoPricingPlans({"HP":{"BLUE":TempoBleuHP,"WHITE":TempoBlancHP,"RED":TempoRougeHP},"HC":{"BLUE":TempoBleuHC,"WHITE":TempoBlancHC,"RED":TempoRougeHC}})
-    tempoCounter.configureAboPricingPlans(Abonnement["TEMPO"])
+    tempoCounter.configurePricingPlans(dynamicPricing["TEMPO"])
     
     HCHPCounter = AboCounter("HCHP")
-    HCHPCounter.configureConsoPricingPlans({"HP":BleuHP, "HC":BleuHC})
     HCHPCounter.configureHeuresCreuses(HC)
-    HCHPCounter.configureAboPricingPlans(Abonnement["HCHP"])
+    HCHPCounter.configurePricingPlans(dynamicPricing["HCHP"])
 
     ZenCounter = AboCounter("Zen")
     ZenCounter.setCalendrierJours(CalZen)
     ZenCounter.configureHeuresCreuses(HCZenFlex)
-    ZenCounter.configureConsoPricingPlans({"HP":{"BLEU":ZenHPEco,"BLANC":ZenHPEco,"ROUGE":ZenHPSobriete},"HC":{"BLEU":ZenHCEco,"BLANC":ZenHCEco,"ROUGE":ZenHCSobriete}})
-    ZenCounter.configureAboPricingPlans(Abonnement["ZEN"])
+    ZenCounter.configurePricingPlans(fallbackAbonnement["ZEN"])
 
     priceCounters = [baseCounter, tempoCounter, HCHPCounter, ZenCounter]
     for counter in priceCounters:

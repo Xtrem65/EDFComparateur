@@ -11,7 +11,7 @@ class AboCounter:
         self.totalConso = 0
         self.details = defaultdict(lambda: 0.0)
         self.pricing = {}
-        self.aboPricingPlan = {}
+        self.pricingPlan = {}
         self.errors = defaultdict(None)
 
         self.aboMensuel = 0
@@ -23,13 +23,13 @@ class AboCounter:
 
 
 
-    def configureAboPricingPlans(self, pricingPlan):
-        self.aboPricingPlan = pricingPlan
-
+    def configurePricingPlans(self, pricingPlan):
+        self.pricingPlan = pricingPlan
 
     def setPuissance(self, puissance):
         try:
-            self.aboMensuel=self.aboPricingPlan[puissance]
+            self.aboMensuel=self.pricingPlan[puissance]["Abonnement"]
+            self.pricing=self.pricingPlan[puissance]["Consommation"]
         except BaseException as e:
             self.aboMensuel = 0
             self.errors["Cet abonnement n'est pas disponible avec cette puissance"] = "Aucune tarification d'abonnement trouvée pour la puissance " + puissance
@@ -40,9 +40,6 @@ class AboCounter:
     def getAboMensuel(self):
         return self.aboMensuel
     
-    def configureConsoPricingPlans(self, pricing):
-        self.pricing = pricing
-
     def setCalendrierJours(self, calJour):
         self.calendrierJours = calJour
 
