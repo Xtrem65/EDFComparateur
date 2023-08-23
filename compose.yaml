@@ -21,3 +21,7 @@ services:
       - env.list
     depends_on:
       - cache
+
+volumes:
+  cache:
+    driver: local
