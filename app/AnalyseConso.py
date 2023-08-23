@@ -68,7 +68,7 @@ def processFile(csvFile, priceCounters):
 
 def getZenCalendar():
     data={}
-    with open("../data/calZen.csv", newline='') as csvfile:
+    with open("data/calZen.csv", newline='') as csvfile:
         # Créer un objet lecteur CSV
         lecteur_csv = csv.reader(csvfile, delimiter=';')
         
@@ -100,7 +100,7 @@ def doStuff(puissance, enedisFileStream=""):
     # Chemin vers le fichier CSV. Ce fichier est à récupérer sur le site d'Enedis, en ayant activé 
     # l'option "Historique de consommation" avec le pas demi-horaire dans l'espace client.
     # Il faut que le fichier soit sur 1 an (pas de contrôle sur ce point, mais le résultat ne serait pas significatif)
-    chemin_csv = "../data/consoexemple.csv"
+    chemin_csv = "data/consoexemple.csv"
 
     #################################################################################################
     #
