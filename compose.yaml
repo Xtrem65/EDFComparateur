@@ -1,5 +1,14 @@
 services:
-  web: 
+  cache:
+    image: redis:latest
+    restart: always
+    ports:
+      - "6379:6379"
+    command: redis-server --save 20 1 --loglevel warning --requirepass merciLucas!
+    volumes:
+      - cache:/tmp/data
+
+  web:
     build:
       context: app
       target: builder
@@ -7,4 +16,8 @@ services:
     # (default stop signal from Compose is SIGTERM)
     stop_signal: SIGINT
     ports:
-      - '8000:8000'
+      - "8000:8000"
+    env_file:
+      - env.list
+    depends_on:
+      - cache
