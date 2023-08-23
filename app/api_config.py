@@ -31,8 +31,8 @@ import os
 # Pensez à souscrire à https://data.rte-france.com/catalog/-/api/consumption/Tempo-Like-Supply-Contract/v1.1
 
 # Client ID and secret code, you can get those at https://data.rte-france.com/
-EDF_CLIENT_ID = ""
-EDF_CLIENT_SECRET = ""
+EDF_CLIENT_ID = os.environ["EDF_CLIENT_ID"]
+EDF_CLIENT_SECRET = os.environ["EDF_CLIENT_SECRET"]
 
 ###### RTE TEMPO
 # URL for authentication and get a token access :
@@ -47,4 +47,4 @@ URL_CONSO = 'https://digital.iservices.rte-france.com/open_api/consumption/v1'
 #  ODRE   #
 ###########
 
-ODRE_APIKEY = ""
+ODRE_APIKEY = os.environ["ODRE_APIKEY"]
