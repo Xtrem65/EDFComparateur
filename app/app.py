@@ -21,4 +21,4 @@ def homepage():
 	return render_template("homepage.html") #Ici, on peut upload son fichier, cliquer sur un bouton pour processer et être redirigé vers la page de resultats
 
 if __name__ == '__main__':
-	app.run(host='0.0.0.0', port=8000, debug=True)
+	app.run(host='0.0.0.0', port=8000, ssl_context='adhoc', debug=True)
