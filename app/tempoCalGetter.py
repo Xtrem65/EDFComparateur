@@ -6,9 +6,6 @@ import redis
 r = redis.Redis(host='localhost', port=6379, db=0)
 
 ########  ODRE #########
-
-GLOBAL_TEMPO = {}
-
 def getTempoFromAPI(date):
 
     redisKey = 'TEMPO-'+date
@@ -29,8 +26,8 @@ def getTempoFromAPI(date):
             curDate=iteratedDate["start_date"] #2023-08-04T15:34:00+02:00 (Format classique)
             curDate= datetime.datetime.fromisoformat(curDate)
             date = curDate.strftime("%Y-%m-%d") #2014-11-25 (on rattrape sur le format géré précédemment par le script)
-            redisKey = 'TEMPO-'+date
-            r.set(redisKey,iteratedDate["value"])
+            iteratingRedisKey = 'TEMPO-'+date
+            r.set(iteratingRedisKey,iteratedDate["value"])
     return r.get(redisKey)
 
 class TempoCalGetter:
