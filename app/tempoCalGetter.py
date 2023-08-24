@@ -1,8 +1,9 @@
 from collections import defaultdict
-import requests
 import api_rte as RTE
 import pandas as pd
 import datetime
+import redis
+r = redis.Redis(host='localhost', port=6379, db=0)
 
 ########  ODRE #########
 
@@ -10,9 +11,9 @@ GLOBAL_TEMPO = {}
 
 def getTempoFromAPI(date):
 
-    if date not in GLOBAL_TEMPO:
-        GLOBAL_TEMPO[date] = {}
-
+    redisKey = 'TEMPO-'+date
+    currentMemoryTempoValue = r.get(redisKey)
+    if currentMemoryTempoValue == None :
         date_from = pd.to_datetime(date)
         date_from = date_from + pd.DateOffset(days=-1)
         date_from=date_from.replace(hour = 0, minute = 0)
@@ -28,8 +29,9 @@ def getTempoFromAPI(date):
             curDate=iteratedDate["start_date"] #2023-08-04T15:34:00+02:00 (Format classique)
             curDate= datetime.datetime.fromisoformat(curDate)
             date = curDate.strftime("%Y-%m-%d") #2014-11-25 (on rattrape sur le format géré précédemment par le script)
-            GLOBAL_TEMPO[date] = iteratedDate["value"]
-    return GLOBAL_TEMPO[date]
+            redisKey = 'TEMPO-'+date
+            r.set(redisKey,iteratedDate["value"])
+    return r.get(redisKey)
 
 class TempoCalGetter:
     def __init__(self):

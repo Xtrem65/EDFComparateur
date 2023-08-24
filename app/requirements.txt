@@ -3,3 +3,4 @@ requests
 pandas
 PyPDF2
 pyopenssl
+redis
