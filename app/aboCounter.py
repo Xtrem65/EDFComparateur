@@ -72,13 +72,13 @@ class AboCounter:
     def addConsummatedHour(self, conso, heure, jour):
         if heure < "06:00":
             jour = (datetime.strptime(jour,"%Y-%m-%d").date() - timedelta(days=1)).strftime("%Y-%m-%d")
-
         try:
             couleur = self.getCouleurFromJour(jour)
             tarification = self.getTarificationFromHeure(heure)
             instantTarif = self.getInstantTarification(couleur, tarification)
         except BaseException as e:
             self.errors[jour]="Could not find tarification"
+            traceback.print_exc()
             return
         self.totalConsommatedWatts = self.totalConsommatedWatts + conso
         hourCost = instantTarif * conso

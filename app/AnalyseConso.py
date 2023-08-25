@@ -80,30 +80,26 @@ def processEDFFile(csvFile, priceCounters):
         if len(ligne) == 1: #Ligne PreEntete
             if ligne[0] != "Récapitulatif de ma consommation" :
                 raise Exception("Format Inconnu, merci de chosir le fichier EDF 'Récupitulatif de ma consommation'")
-        elif "kWh" in ligne[1]:
-            print("Lecture de la ligne d'entete")
-        else:
+        elif "kWh" not in ligne[1]:
             parsedDate = ligne[0] #format JJ/MM/AAAA
             conso = ligne[1] #en kwh
-            print("Parsing "+parsedDate+" ("+conso+"kwh)")
             conso = float(conso)
-            if firstDate is None:
-                firstDate = datetime.strptime(parsedDate,"%d/%m/%Y")
+            if lastDate is None:
+                lastDate = datetime.strptime(parsedDate,"%d/%m/%Y")
         
             formattedDate = datetime.strptime(parsedDate,"%d/%m/%Y").strftime("%Y-%m-%d")
             consoHoraire = float(conso / 24)
             for heure in range(0,23):
                 parsedTime = time(heure,0,0).strftime("%H:%M:%S")
-                print(parsedTime)
                 for counter in priceCounters:
                     counter.addConsummatedHour(consoHoraire,parsedTime,formattedDate)
                 earthWatcher.addConsummatedHour(consoHoraire,parsedTime,formattedDate)
 
     # Calcul du nombre de mois que recouvre le fichier CSV
-    lastDate = datetime.strptime(parsedDate,"%d/%m/%Y")
+    firstDate = datetime.strptime(parsedDate,"%d/%m/%Y")
         
     # Durée en mois couverte par le CSV 
-    nbMois = int((lastDate - firstDate).days / 30)
+    nbMois = int((firstDate - lastDate).days / 30)
     for counter in priceCounters:
         counter.setNbMoisAbo(nbMois)
 

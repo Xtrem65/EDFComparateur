@@ -1,6 +1,8 @@
 from collections import defaultdict
 import requests
 import pandas as pd
+from datetime import date as DATE
+import traceback
 ########  ODRE #########
 """
 
@@ -65,6 +67,10 @@ def getProductionDetails(date):
         date_from = date_from + pd.DateOffset(days=-1)
         date_from=date_from.replace(hour = 0, minute = 0)
         date_to = date_from + pd.DateOffset(months=3)
+
+        if date_to.date() > DATE.today():
+            date_to = date_to.replace(day=DATE.today().day-1,month=DATE.today().month,year=DATE.today().year)
+
         date_to=date_to.replace(hour = 23, minute = 45)
 
         paramsReadyDateFrom = date_from.strftime("%Y-%m-%dT%H:%M:%S")
@@ -151,6 +157,7 @@ class EarthWatcher:
         self.totalCO2 = 0
 
 
+        self.prefillDataSince2022()
         self.totalDetailedConso = self.getEmptyConsoDict()
         self.monthlyDetailedConso = {
             "Nucleaire" : {},
@@ -165,6 +172,26 @@ class EarthWatcher:
         #Si on trouve pas de données de prod pour un créneau, on utilise le dernier créneau fonctionnel, et on mémorise le volume incertain ici
         self.totalConsoEnIncertitude=0
         self.lastWorkingProductionDetails = {}
+
+    def prefillDataSince2022(self):
+        print("2022-1")
+        getProductionDetails("2022-07-02")
+        print("2022-2")
+        getProductionDetails("2022-04-02")
+        print("2022-3")
+        getProductionDetails("2022-04-02")
+        print("2022-3")
+        getProductionDetails("2022-07-02")
+        print("2022-4")
+        getProductionDetails("2022-10-02")
+        print("2023-1")
+        getProductionDetails("2023-01-02")
+        print("2023-2")
+        getProductionDetails("2023-04-02")
+        print("2023-3")
+        getProductionDetails("2023-07-02")
+        print("2023 over")
+        #Ca fait des trucs chelous ici
 
     def getTotalDetailedConso(self):
         return self.totalDetailedConso
@@ -215,10 +242,12 @@ class EarthWatcher:
 
         self.totalConso = self.totalConso + conso
         try:
-            heureEnCours = getProductionDetails(jour)[heure]
+            prodDuJour = getProductionDetails(jour)
+            heureEnCours = prodDuJour[heure]
         except BaseException as e:
             self.totalConsoEnIncertitude = self.totalConsoEnIncertitude + conso
             heureEnCours = self.lastWorkingProductionDetails
+            traceback.print_exc()
 
         self.totalCO2 = self.totalCO2 + (heureEnCours["gCO2/kWh"])* conso
         currentConso = {
