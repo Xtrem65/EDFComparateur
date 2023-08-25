@@ -28,7 +28,7 @@ def getTempoFromAPI(date):
             date = curDate.strftime("%Y-%m-%d") #2014-11-25 (on rattrape sur le format géré précédemment par le script)
             iteratingRedisKey = 'TEMPO-'+date
             r.set(iteratingRedisKey,iteratedDate["value"])
-    return r.get(redisKey)
+    return r.get(redisKey).decode('UTF-8')
 
 class TempoCalGetter:
     def __init__(self):
