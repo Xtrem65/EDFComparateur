@@ -23,13 +23,13 @@
 #################################################################################################
 
 import csv
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, time
 from aboCounter import AboCounter
 from earthWatcher import EarthWatcher
 from tempoCalGetter import TempoCalGetter
 from priceGetter import PriceGetter
 
-def processFile(csvFile, priceCounters):
+def processENEDISFile(csvFile, priceCounters):
     lecteur = csv.reader(csvFile, delimiter=';')
     i = 0
     earthWatcher = EarthWatcher()
@@ -66,6 +66,50 @@ def processFile(csvFile, priceCounters):
     return priceCounters, earthWatcher
 
 
+def processEDFFile(csvFile, priceCounters):
+    lecteur = csv.reader(csvFile, delimiter=';')
+    i = 0
+    earthWatcher = EarthWatcher()
+    firstDate = None
+    lastDate = None
+    parsedDate = None
+    
+    for ligne in lecteur:
+        if len(ligne) == 0: #Ligne vide
+            continue
+        if len(ligne) == 1: #Ligne PreEntete
+            if ligne[0] != "Récapitulatif de ma consommation" :
+                raise Exception("Format Inconnu, merci de chosir le fichier EDF 'Récupitulatif de ma consommation'")
+        elif "kWh" in ligne[1]:
+            print("Lecture de la ligne d'entete")
+        else:
+            parsedDate = ligne[0] #format JJ/MM/AAAA
+            conso = ligne[1] #en kwh
+            print("Parsing "+parsedDate+" ("+conso+"kwh)")
+            conso = float(conso)
+            if firstDate is None:
+                firstDate = datetime.strptime(parsedDate,"%d/%m/%Y")
+        
+            formattedDate = datetime.strptime(parsedDate,"%d/%m/%Y").strftime("%Y-%m-%d")
+            consoHoraire = float(conso / 24)
+            for heure in range(0,23):
+                parsedTime = time(heure,0,0).strftime("%H:%M:%S")
+                print(parsedTime)
+                for counter in priceCounters:
+                    counter.addConsummatedHour(consoHoraire,parsedTime,formattedDate)
+                earthWatcher.addConsummatedHour(consoHoraire,parsedTime,formattedDate)
+
+    # Calcul du nombre de mois que recouvre le fichier CSV
+    lastDate = datetime.strptime(parsedDate,"%d/%m/%Y")
+        
+    # Durée en mois couverte par le CSV 
+    nbMois = int((lastDate - firstDate).days / 30)
+    for counter in priceCounters:
+        counter.setNbMoisAbo(nbMois)
+
+    return priceCounters, earthWatcher
+
+
 def getZenCalendar():
     data={}
     with open("data/calZen.csv", newline='') as csvfile:
@@ -83,7 +127,7 @@ def getZenCalendar():
             data[date_obj.strftime("%Y-%m-%d")] = ligne[1]
     return data
 
-def doStuff(puissance, enedisFileStream=""):
+def doStuff(puissance, enedisFileStream="", edfFileStream=""):
     #################################################################################################
     #
     # Variables amenées à être modifiées par les utilisateurs
@@ -101,12 +145,6 @@ def doStuff(puissance, enedisFileStream=""):
     # l'option "Historique de consommation" avec le pas demi-horaire dans l'espace client.
     # Il faut que le fichier soit sur 1 an (pas de contrôle sur ce point, mais le résultat ne serait pas significatif)
     chemin_csv = "data/consoexemple.csv"
-
-    #################################################################################################
-    #
-    # Variables peu susceptibles d'être modifiées par les utilisateurs
-    #
-    #################################################################################################
 
     # Prix des différents W.h. Faire un XML/YAML/Json ?
     # Attention, les données d'origine sont pour des kW.h mais les données du CSV son des W.h
@@ -162,14 +200,17 @@ def doStuff(puissance, enedisFileStream=""):
     for counter in priceCounters:
         counter.setPuissance(puissance)
 
-    if enedisFileStream == "":
+    if enedisFileStream != "":
+        print("Using ENEDIS Imported dataset")
+        priceCounters, earthWatcher = processENEDISFile(enedisFileStream,priceCounters)
+    elif edfFileStream != "":
+        print("Using EDF Imported dataset")
+        priceCounters, earthWatcher = processEDFFile(edfFileStream,priceCounters)
+    else: 
         print("Using Example Dataset")
         with open(chemin_csv, newline='', encoding='utf-8-sig') as csvfile:
-            priceCounters, earthWatcher = processFile(csvfile,priceCounters)
-    else: 
-        print("Using shared dataset")
-        #Appeller processFile avec le fichier importé (attention csv_reader attends un vrai fichier)
-        priceCounters, earthWatcher = processFile(enedisFileStream,priceCounters)
+            priceCounters, earthWatcher = processENEDISFile(csvfile,priceCounters)
+
 
     return priceCounters, earthWatcher
 

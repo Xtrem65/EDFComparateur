@@ -12,13 +12,19 @@ args = parser.parse_args()
 @app.route('/', methods=["GET", "POST"])
 def homepage():
 	if request.method == "POST":
-		file = request.files.get("file")
+		fileEnedis = request.files.get("fileENEDIS")
+		fileEDF = request.files.get("fileEDF")
 		puissance = request.form["puissance"]
-		data = file.stream.read()
+		enedisData = fileEnedis.stream.read()
+		edfData = fileEDF.stream.read()
 		# check if file loaded successfully or not
-		if data:
-			enedisFile = StringIO(data.decode("UTF8"), newline=None)
-			results, earthWatcher = doStuff(puissance, enedisFile)
+		if enedisData:
+			enedisFile = StringIO(enedisData.decode("UTF-8"), newline=None)
+			results, earthWatcher = doStuff(puissance, enedisFile, "")
+			return render_template("results.html",simulations=results, earthWatcher=earthWatcher)
+		elif edfData:
+			edfFile = StringIO(edfData.decode("ISO 8859-15"), newline=None)
+			results, earthWatcher = doStuff(puissance, "", edfFile)
 			return render_template("results.html",simulations=results, earthWatcher=earthWatcher)
 		else:
 			results, earthWatcher = doStuff(puissance)
