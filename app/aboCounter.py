@@ -91,7 +91,7 @@ class AboCounter:
         return round(self.totalConso)
     
     def getTotalAbo(self):
-        return round(self.aboMensuel * self.nbMoisAbo)
+        return abs(round(self.aboMensuel * self.nbMoisAbo))
     
     def getTotal(self):
         return round(self.getTotalConso() + self.getTotalAbo())
