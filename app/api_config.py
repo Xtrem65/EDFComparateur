@@ -48,3 +48,7 @@ URL_CONSO = 'https://digital.iservices.rte-france.com/open_api/consumption/v1'
 ###########
 
 ODRE_APIKEY = os.environ["ODRE_APIKEY"]
+
+# Redis
+
+REDIS_ADDRESS = os.getenv("REDIS_ADDRESS", "localhost")

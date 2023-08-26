@@ -1,7 +1,7 @@
 import urllib
 import requests
 
-from api_config import *
+from ig import *
 
 ######## RTE / TEMPO #########
 # Merci https://github.com/ReinboldV/api_rte

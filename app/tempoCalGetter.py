@@ -2,8 +2,10 @@ from collections import defaultdict
 import api_rte as RTE
 import pandas as pd
 import datetime
+from api_config import *
 import redis
-r = redis.Redis(host='localhost', port=6379, db=0)
+
+r = redis.Redis(host=REDIS_ADDRESS, port=6379, db=0)
 
 ########  ODRE #########
 def getTempoFromAPI(date):
