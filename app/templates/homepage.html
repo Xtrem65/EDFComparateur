@@ -39,12 +39,21 @@
     border: 1px solid #ccc;
     border-radius: 3px;
   }
+  .stepTitle p {
+    background-color: #e8f1f9;
+    border: 1px solid #003366;
+    padding: 10px;
+    border-radius: 5px;
+    margin: 20px 0;
+  }
 </style>
 </head>
 <body>
 <h1>Simulateur de Tarifications EDF</h1>
 <form method="post" enctype="multipart/form-data">
-  <p>ETAPE 1 - Puissance de votre installation</p>
+  <div class="stepTitle">
+    <p>Définir la puissance de l'installation</p>
+  </div>
   <select name="puissance">
     <!--<option value="3">3 kVA</option> On enleve cette option vu qu'elle ne concerne que l'offre de base'--> 
     <option value="6">6 kVA</option>
@@ -53,14 +62,41 @@
     <option value="15">15 kVA</option>
   </select>
   
-  <p>ETAPE 2 - Merci d'inserer votre export ENEDIS ici</p>
-  <input type="file" name="fileENEDIS">
+  <div name="isENEDIS">
+    <div class="stepTitle">
+      <p>Choix 1 - Importer un fichier ENEDIS - <strong>Conseillé</strong></p>
+    </div>
+      <p>Cet export est recommandé mais nécéssite d'avoir l'export détaillé ENEDIS activé depuis longtemps</p>
+      <div>
+      </div>
+      <div>
+        <p>Pour l'exporter : </p>
+        <p>Connectez-vous à <a href="https://mon-compte-particulier.enedis.fr/suivi-de-mesures/">ENEDIS Mes Mesures</a></p>
+        <p>Sélectionnez la vue "Jour" et le mode kWh</p>
+        <p>Cliquez sur "Télécharger mes données", et importez le fichier "ma-conso-quotidienne" de l'export</p>
+      </div>
+      <input type="file" name="fileENEDIS">
+    </div>
 
-  <p>ETAPE 2 - Alternative 2 Merci d'inserer votre export EDF ici - TRAVAIL EN COURS</p>
-  <input type="file" name="fileEDF">
+  <div name="isEDF">
+    <div class="stepTitle">
+      <p>Choix 2 - Importer un fichier EDF - <strong>Moins précis</strong></p>
+    </div>
+    <div>
+      <p>ATTENTION : Cet export est moins précis que celui d'ENEDIS. Pour la simulation, la consommation sera lissée sur 24h</p>
+      <p>Si vous avez consommé 24kWh sur la journée, la simulation considèrera que vous avez consommé 1kWh par heure.</p>
+      <p>Cela équivaut à une consommation à 66% en Heures pleines (Il y a 8 Heures Creuses sur 24</p>
+    </div>
+    <div>
+      <p>Pour l'exporter : </p>
+      <p>Connectez-vous à <a href="https://equilibre.edf.fr/comprendre?dashboardOpenRequired=true">EDF Equilibre</a></p>
+      <p>Sélectionnez la vue "Jour" et le mode kWh</p>
+      <p>Cliquez sur "Télécharger mes données", et importez le fichier "ma-conso-quotidienne" de l'export</p>
+    </div>
+    <input type="file" name="fileEDF">
+  </div>
 
-  <p>ETAPE 3 - Soumettez-vous au compte de montmirail si vous voulez qu'il se montre magnanime</p>
-  <input type="submit" value="Submit">
+  <input type="submit" value="Simulez !">
 </form>
 </body>
 </html>
