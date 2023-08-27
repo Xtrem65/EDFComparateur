@@ -202,7 +202,7 @@ class EarthWatcher:
     def getTotalConso(self):
         return round(self.totalConso,2)
     def getCO2(self):
-        return round(self.totalCO2,2)/1000
+        return round(self.totalCO2/1000,2)
     
     def getValueByOrigin(self):
         return {
