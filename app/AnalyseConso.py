@@ -78,7 +78,7 @@ def processEDFFile(csvFile, priceCounters):
         if len(ligne) == 0: #Ligne vide
             continue
         if len(ligne) == 1: #Ligne PreEntete
-            if ligne[0] != "Récapitulatif de ma consommation" :
+            if "capitulatif de ma consommation" not in ligne[0]:
                 raise Exception("Format Inconnu, merci de chosir le fichier EDF 'Récupitulatif de ma consommation'")
         elif "kWh" not in ligne[1]:
             parsedDate = ligne[0] #format JJ/MM/AAAA
