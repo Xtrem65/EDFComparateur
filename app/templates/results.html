@@ -25,6 +25,15 @@
             margin-bottom: 20px;
             color: #003399; /* EDF blue color */
         }
+        .consoOptions {
+            border: none;
+            display: flex;
+            flex-direction: row;
+            justify-content: flex-start;
+            break-before: always;
+            margin: 0 0 3em 0;
+        }
+
         .comparison-table {
             width: 100%;
             border-collapse: collapse;
@@ -205,38 +214,93 @@
         });
 
         google.charts.load("current", {packages:["calendar"]});
-        google.charts.setOnLoadCallback(drawChart);
+        google.charts.setOnLoadCallback(drawCharts);
 
-    function drawChart() {
-        var dataTable = new google.visualization.DataTable();
-        dataTable.addColumn({ type: 'date', id: 'Date' });
-        dataTable.addColumn({ type: 'number', id: 'Tempo' });
+        function drawTempoCalendarHeatMap(){
+            var dataTable = new google.visualization.DataTable();
+            dataTable.addColumn({ type: 'date', id: 'Date' });
+            dataTable.addColumn({ type: 'number', id: 'Tempo' });
 
-        dataTable.addRows([
-        {% for parsedDate, tempoType in tempo.getTimeRange(earthWatcher.getMinDate(), earthWatcher.getMaxDate()).items() %}
-            [ new Date("{{parsedDate}}"), {{tempoType}}],
-        {% endfor %}
-            ]);
+            dataTable.addRows([
+            {% for parsedDate, tempoType in tempo.getTimeRange(earthWatcher.getMinDate(), earthWatcher.getMaxDate()).items() %}
+                [ new Date("{{parsedDate}}"), {{tempoType}}],
+            {% endfor %}
+                ]);
 
-        var chart = new google.visualization.Calendar(document.getElementById('calendar_basic'));
+            var tempoDaysChart = new google.visualization.Calendar(document.getElementById('tempo_calendarheatmap'));
 
-        var options = {
-            title: "Tempo Calendar",
-            height: 350,
-        };
+            var options = {
+                title: "Tempo Calendar",
+                height: 350,
+            };
 
-        chart.draw(dataTable, options);
-    }
-    function showFullENR(){
-        var explainBlock = document.getElementById("explainFullENR");
-        var explainCheckbox = document.getElementById("full-enr");
-        if (explainCheckbox.checked){
-            explainBlock.style.display="block";
+            tempoDaysChart.draw(dataTable, options);
         }
-        else {
-            explainBlock.style.display="none";
+        function drawDailyConsoHeatMap(type="Total"){
+            var dataTableConso = new google.visualization.DataTable();
+            dataTableConso.addColumn({ type: 'date', id: 'Date' });
+            dataTableConso.addColumn({ type: 'number', id: 'Consommation' });
+
+            if(type=="Total"){
+                dataTableConso.addRows([
+                {% for simu in simulations %}
+                    {% if simu.name == "Tempo" %}
+                        {% for parsedDate, conso in simu.getDetailedConso().items() %}
+                            [ new Date("{{parsedDate}}"), {{conso["Total"]| round(2)}}],
+                        {% endfor %}
+                    {% endif %}
+                {% endfor %}
+                ]);
+            }else if (type == "HC"){
+                dataTableConso.addRows([
+                {% for simu in simulations %}
+                    {% if simu.name == "Tempo" %}
+                        {% for parsedDate, conso in simu.getDetailedConso().items() %}
+                            [ new Date("{{parsedDate}}"), {{conso["HC"]| round(2)}}],
+                        {% endfor %}
+                    {% endif %}
+                {% endfor %}
+                ]);
+            }
+            else{
+                dataTableConso.addRows([
+                {% for simu in simulations %}
+                    {% if simu.name == "Tempo" %}
+                        {% for parsedDate, conso in simu.getDetailedConso().items() %}
+                            [ new Date("{{parsedDate}}"), {{conso["HP"] | round(2)}}],
+                        {% endfor %}
+                    {% endif %}
+                {% endfor %}
+                ]);
+            }
+
+
+            var dailyConsoChart = new google.visualization.Calendar(document.getElementById('tempo_consoheatmap'));
+
+            options = {
+                title: "Consommation Journalière (kWh)",
+                height: 350,
+            };
+
+            dailyConsoChart.draw(dataTableConso, options);
         }
-    }
+        function drawCharts() {
+            drawTempoCalendarHeatMap();
+            drawDailyConsoHeatMap();
+        }
+        function refreshDailyConsoHeatMap(src) {
+            drawDailyConsoHeatMap(src.value);
+        }
+        function showFullENR(){
+            var explainBlock = document.getElementById("explainFullENR");
+            var explainCheckbox = document.getElementById("full-enr");
+            if (explainCheckbox.checked){
+                explainBlock.style.display="block";
+            }
+            else {
+                explainBlock.style.display="none";
+            }
+        }
     </script>
 </head>
 <body>
@@ -289,7 +353,24 @@
             <canvas id="priceChart"></canvas>
         </div>
 
-        <div id="calendar_basic" style="width: 1000px; height: 350px;"></div>
+        <div id="tempo_calendarheatmap" style="width: 1000px; height: 350px;"></div>
+        <div id="tempo_consoheatmap" style="width: 1000px; height: 350px;"></div>
+        <p>Choix d'affichage de Consommation Journalière</p>
+        <div id="consoChoiceContainer" name="consoChoiceContainer" class="consoOptions">
+
+            <div id="consoTotal" class="floatBlock">
+                <label for="consoTotalChoice"> <input id="consoTotalChoice" onchange="refreshDailyConsoHeatMap(this)" name="consoType" type="radio" value="Total" checked />  HC+HP  </label>
+            </div>
+
+            <div id="consoHC" class="floatBlock">
+                <label for="consoHCChoice"> <input id="consoHCChoice" onchange="refreshDailyConsoHeatMap(this)" name="consoType" type="radio" value="HC" /> HC </label>
+            </div>
+
+            <div id="consoHP" class="floatBlock">
+                <label for="consoHPChoice"> <input id="consoHPChoice" onchange="refreshDailyConsoHeatMap(this)" name="consoType" type="radio" value="HP"/> HP </label>
+            </div>
+
+        </div>
 
         <h1>Analysons votre Impact Carbone & l'origine de votre consommation </h1>
         <p>En comparant votre consommation précise avec les données de productions, voici une vision précise de ce qui à éclairé votre maison</p>
@@ -297,7 +378,7 @@
         <p>Si vous consommez pendant les pics fossiles (🤢 !), leur proportion sera plus grande</p>
         <div>
             <input type="checkbox" id="full-enr" name="full-enr" onclick="showFullENR()" />
-            <label for="full-enr">Je tiens à préciser que j'ai une offre 100% ENR</label>
+            <label for="full-enr">Je tiens à préciser que j'ai une offre 100% Electricité Verte</label>
         </div>
         <div id="explainFullENR" style="display:none">
             <p>Super, mais cela ne change rien à l'origine de votre éléctricité</p>

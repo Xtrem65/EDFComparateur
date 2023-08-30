@@ -20,8 +20,7 @@ class AboCounter:
 
         self.calendrierJours = None
         self.heuresCreuses = []
-
-
+        self.detailedConso = {}
 
     def configurePricingPlans(self, pricingPlan):
         self.pricingPlan = pricingPlan
@@ -82,11 +81,18 @@ class AboCounter:
             return
         self.totalConsommatedWatts = self.totalConsommatedWatts + conso
         hourCost = instantTarif * conso
+        
+        if jour not in self.detailedConso:
+            self.detailedConso[jour] = {"Total":0,"HC":0,"HP":0}
+        self.detailedConso[jour][tarification] = self.detailedConso[jour][tarification] + conso
+        self.detailedConso[jour]["Total"] = self.detailedConso[jour]["Total"] + conso
 
         self.totalConso = self.totalConso + hourCost
         self.details[couleur] = self.details[couleur] + hourCost
         self.details[tarification] = self.details[tarification] + hourCost
 
+    def getDetailedConso(self):
+        return self.detailedConso
     def getTotalConso(self):
         return round(self.totalConso)
     
