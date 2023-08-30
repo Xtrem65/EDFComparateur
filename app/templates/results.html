@@ -67,7 +67,7 @@
         }
         #chartContainer {
             width: 100%;
-            height: 400px;
+            height: 300px;
             margin-top: 20px;
         }
         @media screen and (max-width: 768px) {
@@ -87,6 +87,7 @@
         }
     </style>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
     <script>
         function showDetailsPopup(elementId) {
             var popup = document.getElementById(elementId);
@@ -202,40 +203,50 @@
             var originChart = generateOriginChart(originChartHtmlctx)
             var monthlyOriginChart =  generateMonthlyOriginChart(monthlyOriginChartHtmlctx)
         });
+
+        google.charts.load("current", {packages:["calendar"]});
+        google.charts.setOnLoadCallback(drawChart);
+
+    function drawChart() {
+        var dataTable = new google.visualization.DataTable();
+        dataTable.addColumn({ type: 'date', id: 'Date' });
+        dataTable.addColumn({ type: 'number', id: 'Tempo' });
+
+        dataTable.addRows([
+        {% for parsedDate, tempoType in tempo.getTimeRange(earthWatcher.getMinDate(), earthWatcher.getMaxDate()).items() %}
+            [ new Date("{{parsedDate}}"), {{tempoType}}],
+        {% endfor %}
+            ]);
+
+        var chart = new google.visualization.Calendar(document.getElementById('calendar_basic'));
+
+        var options = {
+            title: "Tempo Calendar",
+            height: 350,
+        };
+
+        chart.draw(dataTable, options);
+    }
+    function showFullENR(){
+        var explainBlock = document.getElementById("explainFullENR");
+        var explainCheckbox = document.getElementById("full-enr");
+        if (explainCheckbox.checked){
+            explainBlock.style.display="block";
+        }
+        else {
+            explainBlock.style.display="none";
+        }
+    }
     </script>
 </head>
 <body>
     <div class="container">
         <h1>Comparatif de Simulations de Prix d'Électricité</h1>
+        <p>Periode : {{ earthWatcher.getMinDate() }} à {{ earthWatcher.getMaxDate() }}</p>
         {% if test == True: %}
         <div >Aucun jeu de test fourni, exécution avec un jeu de test d'exemple</div>
         {% endif %}
-        <div class="table-responsive">
-            <table class="comparison-table">
-                <tr>
-                    <th>kwh</th>
-                    <th>Taux d'erreur</th>
-                    <th> Total CO2 (kg)</th>
-                    {% for origin, volume in earthWatcher.getTotalDetailedConso().items() %}
-                    <th> Consommation {{origin}} </th>
-                    {% endfor %}
-                </tr>
-                <tr>
-                    <td>{{ earthWatcher.getTotalConso() }}</td>
-                    <td>{{ earthWatcher.getFiabilité() }}</td>
-                    <td>{{ earthWatcher.getCO2()}}</td>
-                    {% for origin, volume in earthWatcher.getTotalDetailedConso().items() %}
-                    <th> {{volume | round(0)}} ({{(volume/earthWatcher.getTotalConso()*100) | round(2)}}%)</th>
-                    {% endfor %}
-                </tr>
-            </table>
-        </div>
-        <div id="chartContainer">
-            <canvas id="monthlyOriginChart"></canvas>
-        </div>
-        <div id="chartContainer">
-            <canvas id="originChart"></canvas>
-        </div>
+
         <div class="table-responsive">
             <table class="comparison-table">
                 <tr>
@@ -276,6 +287,51 @@
         </div>
         <div id="chartContainer">
             <canvas id="priceChart"></canvas>
+        </div>
+
+        <div id="calendar_basic" style="width: 1000px; height: 350px;"></div>
+
+        <h1>Analysons votre Impact Carbone & l'origine de votre consommation </h1>
+        <p>En comparant votre consommation précise avec les données de productions, voici une vision précise de ce qui à éclairé votre maison</p>
+        <p>Si vous consommez pendant les pics solaires et éoliens, leur proportion sera plus grande</p>
+        <p>Si vous consommez pendant les pics fossiles (🤢 !), leur proportion sera plus grande</p>
+        <div>
+            <input type="checkbox" id="full-enr" name="full-enr" onclick="showFullENR()" />
+            <label for="full-enr">Je tiens à préciser que j'ai une offre 100% ENR</label>
+        </div>
+        <div id="explainFullENR" style="display:none">
+            <p>Super, mais cela ne change rien à l'origine de votre éléctricité</p>
+            <p>Vos appareils sont alimentés par l'électricité produite par le réseau, les électrons ne sont pas triés à l'entrée</p>
+            <p>Mais alors ça sert à quoi ?</p>
+            <p>Beh en gros vous obligez votre producteur à "racheter" de l'énergie propre (à l'Islande par exemple) pour vous donner bonne conscience.</p>
+        </div>
+
+        
+        <div class="table-responsive">
+            <table class="comparison-table">
+                <tr>
+                    <th>kwh</th>
+                    <th>Taux d'erreur</th>
+                    <th> Total CO2 (kg)</th>
+                    {% for origin, volume in earthWatcher.getTotalDetailedConso().items() %}
+                    <th> Consommation {{origin}} </th>
+                    {% endfor %}
+                </tr>
+                <tr>
+                    <td>{{ earthWatcher.getTotalConso() }}</td>
+                    <td>{{ earthWatcher.getFiabilité() }}</td>
+                    <td>{{ earthWatcher.getCO2()}}</td>
+                    {% for origin, volume in earthWatcher.getTotalDetailedConso().items() %}
+                    <th> {{volume | round(0)}} ({{(volume/earthWatcher.getTotalConso()*100) | round(2)}}%)</th>
+                    {% endfor %}
+                </tr>
+            </table>
+        </div>
+        <div id="chartContainer">
+            <canvas id="monthlyOriginChart"></canvas>
+        </div>
+        <div id="chartContainer">
+            <canvas id="originChart"></canvas>
         </div>
     </div>
 </body>

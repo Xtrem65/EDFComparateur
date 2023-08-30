@@ -2,6 +2,7 @@ from collections import defaultdict
 import requests
 import pandas as pd
 from datetime import date as DATE
+from datetime import datetime as DT
 import traceback
 ########  ODRE #########
 """
@@ -155,7 +156,8 @@ class EarthWatcher:
     def __init__(self):
         self.totalConso = 0
         self.totalCO2 = 0
-
+        self.minDate = DT(2999,12,31)
+        self.maxDate = DT(1337,1,1)
 
         self.prefillDataSince2022()
         self.totalDetailedConso = self.getEmptyConsoDict()
@@ -173,6 +175,10 @@ class EarthWatcher:
         self.totalConsoEnIncertitude=0
         self.lastWorkingProductionDetails = {}
 
+    def getMinDate(self):
+        return self.minDate.strftime("%Y-%m-%d")
+    def getMaxDate(self):
+        return self.maxDate.strftime("%Y-%m-%d")
     def prefillDataSince2022(self):
         print("2022-1")
         getProductionDetails("2022-07-02")
@@ -260,6 +266,13 @@ class EarthWatcher:
             "Echanges" : conso * heureEnCours["echangesPercent"],
         }
         self.addConsoToCounters(currentConso, jour)
+
+        curDate= DT.strptime(jour,"%Y-%m-%d")
+        if curDate > self.maxDate:
+            self.maxDate = curDate
+        if curDate < self.minDate:
+            self.minDate = curDate
+
 
         #On memorise ces données de prod pour les reutiliser s'il nous manque des infos sur le prochain créneau
         self.lastWorkingProductionDetails = heureEnCours

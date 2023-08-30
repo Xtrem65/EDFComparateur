@@ -38,3 +38,18 @@ class TempoCalGetter:
 
     def get(self, jour):
         return getTempoFromAPI(jour)
+    
+    def getTimeRange(self, debut="2022-01-01",fin="2022-12-31"):
+        print("Retrieving Tempo for "+debut+" to "+fin+".")
+        tempoDetails = {}
+        for parsedDate in pd.date_range(debut,fin):
+            date = parsedDate.strftime("%Y-%m-%d") #2014-11-25 (on rattrape sur le format géré précédemment par le script)
+            tempoType = self.get(date)
+            tempoValue = 0
+            match tempoType:
+                case "BLUE":
+                    tempoValue = 1
+                case "RED":
+                    tempoValue = -1
+            tempoDetails[date] = tempoValue
+        return tempoDetails

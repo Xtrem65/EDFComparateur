@@ -21,14 +21,14 @@ def homepage():
 		if enedisData:
 			enedisFile = StringIO(enedisData.decode("UTF-8"), newline=None)
 			results, earthWatcher = doStuff(puissance, enedisFile, "")
-			return render_template("results.html",simulations=results, earthWatcher=earthWatcher)
+			return render_template("results.html",simulations=results, earthWatcher=earthWatcher, tempo=TempoCalGetter())
 		elif edfData:
 			edfFile = StringIO(edfData.decode("ISO 8859-15"), newline=None)
 			results, earthWatcher = doStuff(puissance, "", edfFile)
-			return render_template("results.html",simulations=results, earthWatcher=earthWatcher)
+			return render_template("results.html",simulations=results, earthWatcher=earthWatcher, tempo=TempoCalGetter())
 		else:
 			results, earthWatcher = doStuff(puissance)
-			return render_template("results.html", simulations=results,earthWatcher=earthWatcher, test=True)
+			return render_template("results.html", simulations=results,earthWatcher=earthWatcher, tempo=TempoCalGetter(), test=True)
 
 	return render_template("homepage.html") #Ici, on peut upload son fichier, cliquer sur un bouton pour processer et être redirigé vers la page de resultats
 
