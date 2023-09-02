@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html>
+<head>
+</head>
+<body>
+<h1>Mes données de calcul</h1>
+    <table border="1">
+        <tr>
+            <th></th>
+            <th>Abonnement</th>
+            <th>Consommation</th>
+        </tr>
+        {% for key, value in data.pricings.items() %}
+        <tr>
+            <td>{{ key }}</td>
+            <td></td>
+            <td></td>
+        </tr>
+        {% for sub_key, sub_value in value.items() %}
+        <tr>
+            <td>{{ sub_key }}</td>
+            <td>{{ sub_value['Abonnement'] }}</td>
+            <td>{{ sub_value['Consommation'] }}</td>
+        </tr>
+        {% endfor %}
+        {% endfor %}
+    </table>
+</body>
+
+</html>

@@ -123,7 +123,7 @@ def getZenCalendar():
             data[date_obj.strftime("%Y-%m-%d")] = ligne[1]
     return data
 
-def doStuff(puissance, enedisFileStream="", edfFileStream=""):
+def doStuff(appContext, puissance, enedisFileStream="", edfFileStream=""):
     #################################################################################################
     #
     # Variables amenées à être modifiées par les utilisateurs
@@ -142,55 +142,26 @@ def doStuff(puissance, enedisFileStream="", edfFileStream=""):
     # Il faut que le fichier soit sur 1 an (pas de contrôle sur ce point, mais le résultat ne serait pas significatif)
     chemin_csv = "data/consoexemple.csv"
 
-    # Prix des différents W.h. Faire un XML/YAML/Json ?
-    # Attention, les données d'origine sont pour des kW.h mais les données du CSV son des W.h
-    # Données d'origine  https://particulier.edf.fr/content/dam/2-Actifs/Documents/Offres/Grille_prix_Tarif_Bleu.pdf
-    # Tarifs au 01/08/2023
-    
-    ZenHPEco = 0.2228
-    ZenHCEco = 0.1295
-    ZenHPSobriete = 0.6712
-    ZenHCSobriete = 0.2228
-    
-    fallbackAbonnement = {
-                "ZEN": {
-                    "6": {
-                        "Abonnement":12.62,
-                        "Consommation": {"HP":{"BLEU":ZenHPEco,"BLANC":ZenHPEco,"ROUGE":ZenHPSobriete},"HC":{"BLEU":ZenHCEco,"BLANC":ZenHCEco,"ROUGE":ZenHCSobriete}}
-                    },
-                    "9": {
-                        "Abonnement":15.99,
-                        "Consommation": {"HP":{"BLEU":ZenHPEco,"BLANC":ZenHPEco,"ROUGE":ZenHPSobriete},"HC":{"BLEU":ZenHCEco,"BLANC":ZenHCEco,"ROUGE":ZenHCSobriete}}
-                        },
-                    "12": {
-                        "Abonnement":19.27,
-                        "Consommation": {"HP":{"BLEU":ZenHPEco,"BLANC":ZenHPEco,"ROUGE":ZenHPSobriete},"HC":{"BLEU":ZenHCEco,"BLANC":ZenHCEco,"ROUGE":ZenHCSobriete}}
-                    }
-                }
-            }
-
-    priceGetter = PriceGetter()
-    dynamicPricing = priceGetter.getPrice()
-
+    pricings = appContext.getPricings()
     # Dictionnaire des jours eco/sobriété de l'offre ZenFlex
     CalZen = getZenCalendar()
 
     baseCounter = AboCounter("Base")
-    baseCounter.configurePricingPlans(dynamicPricing["Base"])
+    baseCounter.configurePricingPlans(pricings["Base"])
 
     tempoCounter = AboCounter("Tempo")
     tempoCounter.setCalendrierJours(TempoCalGetter())
     tempoCounter.configureHeuresCreuses(HC)
-    tempoCounter.configurePricingPlans(dynamicPricing["TEMPO"])
+    tempoCounter.configurePricingPlans(pricings["TEMPO"])
     
     HCHPCounter = AboCounter("HCHP")
     HCHPCounter.configureHeuresCreuses(HC)
-    HCHPCounter.configurePricingPlans(dynamicPricing["HCHP"])
+    HCHPCounter.configurePricingPlans(pricings["HCHP"])
 
     ZenCounter = AboCounter("Zen")
     ZenCounter.setCalendrierJours(CalZen)
     ZenCounter.configureHeuresCreuses(HCZenFlex)
-    ZenCounter.configurePricingPlans(fallbackAbonnement["ZEN"])
+    ZenCounter.configurePricingPlans(pricings["ZEN"])
 
     priceCounters = [baseCounter, tempoCounter, HCHPCounter, ZenCounter]
     for counter in priceCounters:

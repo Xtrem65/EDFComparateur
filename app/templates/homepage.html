@@ -55,11 +55,9 @@
     <p>Définir la puissance de l'installation</p>
   </div>
   <select name="puissance">
-    <!--<option value="3">3 kVA</option> On enleve cette option vu qu'elle ne concerne que l'offre de base'--> 
-    <option value="6">6 kVA</option>
-    <option selected value="9">9 kVA</option>
-    <option value="12">12 kVA</option>
-    <option value="15">15 kVA</option>
+    {% for puissance in puissances %}
+    <option value="{{puissance}}">{{puissance}} kVA</option>
+    {% endfor %}
   </select>
   
   <div name="isENEDIS">

@@ -357,19 +357,15 @@
         <div id="tempo_consoheatmap" style="width: 1000px; height: 350px;"></div>
         <p>Choix d'affichage de Consommation Journalière</p>
         <div id="consoChoiceContainer" name="consoChoiceContainer" class="consoOptions">
-
             <div id="consoTotal" class="floatBlock">
                 <label for="consoTotalChoice"> <input id="consoTotalChoice" onchange="refreshDailyConsoHeatMap(this)" name="consoType" type="radio" value="Total" checked />  HC+HP  </label>
             </div>
-
             <div id="consoHC" class="floatBlock">
                 <label for="consoHCChoice"> <input id="consoHCChoice" onchange="refreshDailyConsoHeatMap(this)" name="consoType" type="radio" value="HC" /> HC </label>
             </div>
-
             <div id="consoHP" class="floatBlock">
                 <label for="consoHPChoice"> <input id="consoHPChoice" onchange="refreshDailyConsoHeatMap(this)" name="consoType" type="radio" value="HP"/> HP </label>
             </div>
-
         </div>
 
         <h1>Analysons votre Impact Carbone & l'origine de votre consommation </h1>
@@ -407,6 +403,12 @@
                     {% endfor %}
                 </tr>
             </table>
+        </div>
+        <div id="explainCO2" >
+            <p>Pour rappel, les objectifs climatiques ciblent nous atteignons les 2TeqCO2 par an par habitant</p>
+            <p>Pour y arriver : il faudra réduire nos usages, et électrifier un maximum de choses (avec une éléctricité décarbonée)</p>
+            <p>Fini les chaudières au gaz/fioul, fini l'essence et le diesel. Bonjour l'électricité bas-carbone !</p>
+            <p>Il ne faut pas avoir peur de faire monter votre consommation électrique, tant que cela permet de réduire votre consommation d'énergies fossiles.</p>
         </div>
         <div id="chartContainer">
             <canvas id="monthlyOriginChart"></canvas>

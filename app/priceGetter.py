@@ -11,16 +11,15 @@ import io
 class PriceGetter:
     
     def __init__(self):
+        self.dataSource = 'https://particulier.edf.fr/content/dam/2-Actifs/Documents/Offres/Grille_prix_Tarif_Bleu.pdf'
         self.pricing = self.loadPrice()
 
     def getPrice(self):
         return self.pricing
 
-    def loadPrice(self):
-        url = 'https://particulier.edf.fr/content/dam/2-Actifs/Documents/Offres/Grille_prix_Tarif_Bleu.pdf'
-
+    def loadPrice(self,):
         # calling urllib to create a reader of the pdf url
-        File = urllib.request.urlopen(url)
+        File = urllib.request.urlopen(self.dataSource)
         reader = PdfReader(io.BytesIO(File.read()))
 
         parsing = None
