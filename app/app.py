@@ -17,7 +17,6 @@ appContext = AppContext()
 def showData():
 	return render_template("data.html", data=appContext)
 
-
 @app.route('/', methods=["GET", "POST"])
 def homepage():
 	if request.method == "POST":
@@ -46,8 +45,21 @@ def homepage():
 			if puissancePossiblePourCetAbo not in totalAvailablePuissances:
 				totalAvailablePuissances.append(puissancePossiblePourCetAbo)
 
-
 	return render_template("homepage.html", puissances=totalAvailablePuissances) #Ici, on peut upload son fichier, cliquer sur un bouton pour processer et être redirigé vers la page de resultats
+
+@app.route('/config', methods=["GET"])
+def getConfig():
+	totalAvailablePuissances = []
+	for nomAbo, abonnementConnu in appContext.getPricings().items():
+		puissancesPossiblePourCetAbo = abonnementConnu.keys()
+		for puissancePossiblePourCetAbo in puissancesPossiblePourCetAbo:
+			if puissancePossiblePourCetAbo not in totalAvailablePuissances:
+				totalAvailablePuissances.append(puissancePossiblePourCetAbo)
+	return {"puissances": totalAvailablePuissances }
+
+@app.route('/simulations', methods=["POST"])
+def postSimulation():
+	return ""
 
 if __name__ == '__main__':
 	if args.debug == True :
