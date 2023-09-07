@@ -57,9 +57,30 @@ def getConfig():
 				totalAvailablePuissances.append(puissancePossiblePourCetAbo)
 	return {"puissances": totalAvailablePuissances }
 
-@app.route('/simulations', methods=["POST"])
+@app.route('/simulations', methods=["GET", "POST"])
 def postSimulation():
-	return ""
+	fileEnedis = request.files.get("fileENEDIS")
+	fileEDF = request.files.get("fileEDF")
+	#puissance = request.form["puissance"]
+	#enedisData = fileEnedis.stream.read()
+	#edfData = fileEDF.stream.read()
+	# check if file loaded successfully or not
+	#if enedisData:
+		#enedisFile = StringIO(enedisData.decode("UTF-8"), newline=None)
+		#results, earthWatcher = doStuff(appContext, puissance, enedisFile, "")
+		#return render_template("results.html",simulations=results, earthWatcher=earthWatcher, tempo=TempoCalGetter())
+	#elif edfData:
+		#edfFile = StringIO(edfData.decode("ISO 8859-15"), newline=None)
+		#results, earthWatcher = doStuff(appContext, puissance, "", edfFile)
+		#return render_template("results.html",simulations=results, earthWatcher=earthWatcher, tempo=TempoCalGetter())
+	
+	results, earthWatcher = doStuff(appContext, "9")
+	return {
+		"simulations":"merci",
+		"earthWatcher":"lu",
+		"tempo":"cas"
+		}
+
 
 if __name__ == '__main__':
 	if args.debug == True :
