@@ -158,12 +158,13 @@ def doStuff(appContext, puissance, enedisFileStream="", edfFileStream=""):
     HCHPCounter.configureHeuresCreuses(HC)
     HCHPCounter.configurePricingPlans(pricings["HCHP"])
 
-    ZenCounter = AboCounter("Zen")
-    ZenCounter.setCalendrierJours(CalZen)
-    ZenCounter.configureHeuresCreuses(HCZenFlex)
-    ZenCounter.configurePricingPlans(pricings["ZEN"])
+    # On disable le temps de faire ca correctement
+    #ZenCounter = AboCounter("Zen")
+    #ZenCounter.setCalendrierJours(CalZen)
+    #ZenCounter.configureHeuresCreuses(HCZenFlex)
+    #ZenCounter.configurePricingPlans(pricings["ZEN"])
 
-    priceCounters = [baseCounter, tempoCounter, HCHPCounter, ZenCounter]
+    priceCounters = [baseCounter, tempoCounter, HCHPCounter ]#ZenCounter]
     for counter in priceCounters:
         counter.setPuissance(puissance)
 
