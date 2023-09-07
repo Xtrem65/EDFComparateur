@@ -4,6 +4,8 @@ import pandas as pd
 from datetime import date as DATE
 from datetime import datetime as DT
 import traceback
+import json
+
 ########  ODRE #########
 """
 
@@ -153,6 +155,16 @@ class EarthWatcher:
             "Echanges" : 0,
             }
     
+    def toJSON(self):
+        def extended_encoder(o):
+            if isinstance(o, DT):
+                return o.isoformat()
+            if hasattr(o, '__dict__'):
+                return o.__dict__
+            raise TypeError("L'objet n'est pas sérialisable")
+        return extended_encoder(self)
+
+
     def __init__(self):
         self.totalConso = 0
         self.totalCO2 = 0

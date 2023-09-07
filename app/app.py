@@ -81,8 +81,8 @@ def postSimulation():
 	results, earthWatcher = doStuff(appContext, "9")
 	return {
 		"simulations":"merci",
-		"earthWatcher":"lu",
-		"tempo":"cas"
+		"earthWatcher":earthWatcher.toJSON(),
+		"tempo":"lucas"
 		}
 
 if __name__ == '__main__':
