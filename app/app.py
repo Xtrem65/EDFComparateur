@@ -71,16 +71,16 @@ def postSimulation():
 	# check if file loaded successfully or not
 	#if enedisData:
 		#enedisFile = StringIO(enedisData.decode("UTF-8"), newline=None)
-		#results, earthWatcher = doStuff(appContext, puissance, enedisFile, "")
-		#return render_template("results.html",simulations=results, earthWatcher=earthWatcher, tempo=TempoCalGetter())
+		#simulations, earthWatcher = doStuff(appContext, puissance, enedisFile, "")
+		#return render_template("results.html",simulations=simulations, earthWatcher=earthWatcher, tempo=TempoCalGetter())
 	#elif edfData:
 		#edfFile = StringIO(edfData.decode("ISO 8859-15"), newline=None)
-		#results, earthWatcher = doStuff(appContext, puissance, "", edfFile)
-		#return render_template("results.html",simulations=results, earthWatcher=earthWatcher, tempo=TempoCalGetter())
+		#simulations, earthWatcher = doStuff(appContext, puissance, "", edfFile)
+		#return render_template("results.html",simulations=simulations, earthWatcher=earthWatcher, tempo=TempoCalGetter())
 	
-	results, earthWatcher = doStuff(appContext, "9")
+	simulations, earthWatcher = doStuff(appContext, "9")
 	return {
-		"simulations":"merci",
+		"simulations":[sim.toJSON() for sim in simulations],
 		"earthWatcher":earthWatcher.toJSON(),
 		"tempo":"lucas"
 		}

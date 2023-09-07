@@ -1,11 +1,25 @@
 from collections import defaultdict
 
+from tempoCalGetter import TempoCalGetter
 from datetime import datetime, timedelta
 import traceback
 
 
 class AboCounter:
     
+    def toJSON(self):
+        def extended_encoder(o):
+            if isinstance(o, datetime):
+                return o.isoformat()
+            if isinstance(o,TempoCalGetter):
+                return None
+            if hasattr(o, '__dict__'):
+                obj_dict = o.__dict__.copy()
+                obj_dict.pop('calendrierJours', None)
+                return obj_dict
+            raise TypeError("L'objet n'est pas sérialisable")
+        return extended_encoder(self)
+
     def __init__(self, name):
         self.name = name
         self.totalConso = 0
