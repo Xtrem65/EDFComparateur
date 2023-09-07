@@ -79,11 +79,9 @@ def postSimulation():
 		#return render_template("results.html",simulations=results, earthWatcher=earthWatcher, tempo=TempoCalGetter())
 	
 	results, earthWatcher = doStuff(appContext, "9")
-	return {
-		"simulations":"merci",
-		"earthWatcher":"lu",
-		"tempo":"cas"
-		}
+	return {"message": "Fichier téléchargé avec succès !"}, {
+		"Access-Control-Allow-Origin": "*",
+	}
 
 
 if __name__ == '__main__':
