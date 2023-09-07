@@ -230,7 +230,7 @@
             var tempoDaysChart = new google.visualization.Calendar(document.getElementById('tempo_calendarheatmap'));
 
             var options = {
-                title: "Tempo Calendar",
+                title: "Répartition des jours Bleu/Blanc/Rouge",
                 height: 350,
             };
 
@@ -261,13 +261,23 @@
                     {% endif %}
                 {% endfor %}
                 ]);
+            }else if (type == "HP"){
+                dataTableConso.addRows([
+                {% for simu in simulations %}
+                    {% if simu.name == "Tempo" %}
+                        {% for parsedDate, conso in simu.getDetailedConso().items() %}
+                            [ new Date("{{parsedDate}}"), {{conso["HP"]| round(2)}}],
+                        {% endfor %}
+                    {% endif %}
+                {% endfor %}
+                ]);
             }
             else{
                 dataTableConso.addRows([
                 {% for simu in simulations %}
                     {% if simu.name == "Tempo" %}
                         {% for parsedDate, conso in simu.getDetailedConso().items() %}
-                            [ new Date("{{parsedDate}}"), {{conso["HP"] | round(2)}}],
+                            [ new Date("{{parsedDate}}"), {{conso["Tarif"] | round(2)}}],
                         {% endfor %}
                     {% endif %}
                 {% endfor %}
@@ -278,7 +288,7 @@
             var dailyConsoChart = new google.visualization.Calendar(document.getElementById('tempo_consoheatmap'));
 
             options = {
-                title: "Consommation Journalière (kWh)",
+                title: "Vision Journalière de votre consommation d'électricité",
                 height: 350,
             };
 
@@ -358,13 +368,16 @@
         <p>Choix d'affichage de Consommation Journalière</p>
         <div id="consoChoiceContainer" name="consoChoiceContainer" class="consoOptions">
             <div id="consoTotal" class="floatBlock">
-                <label for="consoTotalChoice"> <input id="consoTotalChoice" onchange="refreshDailyConsoHeatMap(this)" name="consoType" type="radio" value="Total" checked />  HC+HP  </label>
+                <label for="consoTotalChoice"> <input id="consoTotalChoice" onchange="refreshDailyConsoHeatMap(this)" name="consoType" type="radio" value="Total" checked />  kWh en HC+HP  </label>
             </div>
             <div id="consoHC" class="floatBlock">
-                <label for="consoHCChoice"> <input id="consoHCChoice" onchange="refreshDailyConsoHeatMap(this)" name="consoType" type="radio" value="HC" /> HC </label>
+                <label for="consoHCChoice"> <input id="consoHCChoice" onchange="refreshDailyConsoHeatMap(this)" name="consoType" type="radio" value="HC" /> kWh en HC </label>
             </div>
             <div id="consoHP" class="floatBlock">
-                <label for="consoHPChoice"> <input id="consoHPChoice" onchange="refreshDailyConsoHeatMap(this)" name="consoType" type="radio" value="HP"/> HP </label>
+                <label for="consoHPChoice"> <input id="consoHPChoice" onchange="refreshDailyConsoHeatMap(this)" name="consoType" type="radio" value="HP"/> kWh en HP </label>
+            </div>
+            <div id="consoTarif" class="floatBlock">
+                <label for="consoTarifChoice"> <input id="consoTarifChoice" onchange="refreshDailyConsoHeatMap(this)" name="consoType" type="radio" value="Tarif"/> € </label>
             </div>
         </div>
 

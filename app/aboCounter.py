@@ -83,9 +83,10 @@ class AboCounter:
         hourCost = instantTarif * conso
         
         if jour not in self.detailedConso:
-            self.detailedConso[jour] = {"Total":0,"HC":0,"HP":0}
+            self.detailedConso[jour] = {"Total":0,"HC":0,"HP":0,"Tarif":0}
         self.detailedConso[jour][tarification] = self.detailedConso[jour][tarification] + conso
         self.detailedConso[jour]["Total"] = self.detailedConso[jour]["Total"] + conso
+        self.detailedConso[jour]["Tarif"] = self.detailedConso[jour]["Tarif"] + hourCost
 
         self.totalConso = self.totalConso + hourCost
         self.details[couleur] = self.details[couleur] + hourCost
