@@ -61,24 +61,24 @@ def getConfig():
 				totalAvailablePuissances.append(puissancePossiblePourCetAbo)
 	return {"puissances": totalAvailablePuissances }
 
-@app.route('/simulations', methods=["GET", "POST"])
+@app.route('/simulations', methods=["POST"])
 def postSimulation():
-	fileEnedis = request.files.get("fileENEDIS")
+	fileEnedis = request.files.get("file")
 	fileEDF = request.files.get("fileEDF")
-	#puissance = request.form["puissance"]
-	#enedisData = fileEnedis.stream.read()
+	puissance = request.form["power"]
+	enedisData = fileEnedis.stream.read()
 	#edfData = fileEDF.stream.read()
 	# check if file loaded successfully or not
-	#if enedisData:
-		#enedisFile = StringIO(enedisData.decode("UTF-8"), newline=None)
-		#simulations, earthWatcher = doStuff(appContext, puissance, enedisFile, "")
-		#return render_template("results.html",simulations=simulations, earthWatcher=earthWatcher, tempo=TempoCalGetter())
+	if enedisData:
+		enedisFile = StringIO(enedisData.decode("UTF-8"), newline=None)
+		simulations, earthWatcher = doStuff(appContext, puissance, enedisFile, "")
+		return render_template("results.html",simulations=simulations, earthWatcher=earthWatcher, tempo=TempoCalGetter())
 	#elif edfData:
 		#edfFile = StringIO(edfData.decode("ISO 8859-15"), newline=None)
 		#simulations, earthWatcher = doStuff(appContext, puissance, "", edfFile)
 		#return render_template("results.html",simulations=simulations, earthWatcher=earthWatcher, tempo=TempoCalGetter())
 	
-	simulations, earthWatcher = doStuff(appContext, "9")
+	simulations, earthWatcher = doStuff(appContext, puissance)
 	return {
 		"simulations":[sim.toJSON() for sim in simulations],
 		"earthWatcher":earthWatcher.toJSON(),
