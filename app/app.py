@@ -82,7 +82,7 @@ def postSimulation():
 	return {
 		"simulations":[sim.toJSON() for sim in simulations],
 		"earthWatcher":earthWatcher.toJSON(),
-		"tempo":"lucas"
+		"tempo": TempoCalGetter().getTimeRange(earthWatcher.getMinDate(), earthWatcher.getMaxDate())
 		}
 
 if __name__ == '__main__':
