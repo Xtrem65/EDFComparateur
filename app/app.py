@@ -72,7 +72,6 @@ def postSimulation():
 	if enedisData:
 		enedisFile = StringIO(enedisData.decode("UTF-8"), newline=None)
 		simulations, earthWatcher = doStuff(appContext, puissance, enedisFile, "")
-		return render_template("results.html",simulations=simulations, earthWatcher=earthWatcher, tempo=TempoCalGetter())
 	#elif edfData:
 		#edfFile = StringIO(edfData.decode("ISO 8859-15"), newline=None)
 		#simulations, earthWatcher = doStuff(appContext, puissance, "", edfFile)
