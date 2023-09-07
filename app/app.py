@@ -1,5 +1,8 @@
 from flask import Flask, request, render_template
+from flask_cors import CORS
 app = Flask(__name__)
+CORS(app)
+
 from AnalyseConso import *
 from appContext import AppContext
 from io import StringIO
@@ -9,6 +12,7 @@ parser = argparse.ArgumentParser(description="Just an example",
 parser.add_argument("-d", "--debug", action="store_true", help="debug mode")
 parser.add_argument("-v", "--verbose", action="store_true", help="increase verbosity")
 args = parser.parse_args()
+
 
 
 appContext = AppContext()
