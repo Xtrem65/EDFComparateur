@@ -135,6 +135,7 @@ def doStuff(appContext, puissance, enedisFileStream="", edfFileStream=""):
     HC = [0,1,2,3,4,5,22,23]
 
     # Horaires HC/HP pour l'abonnement ZenFlex
+    #Les Heures Pleines (HP) : de 8h à 13h et de 18h à 20h
     HCZenFlex = [0,1,2,3,4,5,6,7,14,15,16,17,20,21,22,23]
 
     # Chemin vers le fichier CSV. Ce fichier est à récupérer sur le site d'Enedis, en ayant activé 
