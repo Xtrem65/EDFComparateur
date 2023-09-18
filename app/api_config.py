@@ -52,3 +52,4 @@ ODRE_APIKEY = os.environ["ODRE_APIKEY"]
 # Redis
 
 REDIS_ADDRESS = os.getenv("REDIS_ADDRESS", "localhost")
+REDIS_PORT = os.getenv("REDIS_PORT", 6379)
