@@ -5,7 +5,7 @@ import datetime
 from api_config import *
 import redis
 
-r = redis.Redis(host=REDIS_ADDRESS, port=6379, db=0)
+r = redis.Redis(host=REDIS_ADDRESS, port=REDIS_PORT, db=0)
 
 ########  ODRE #########
 def getTempoFromAPI(date):
