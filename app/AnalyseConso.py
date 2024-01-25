@@ -147,17 +147,31 @@ def doStuff(appContext, puissance, enedisFileStream="", edfFileStream=""):
     # Dictionnaire des jours eco/sobriété de l'offre ZenFlex
     CalZen = getZenCalendar()
 
+
+    oldbaseCounter = AboCounter("Base sur Tarifs 2023")
+    oldbaseCounter.configurePricingPlans(pricings["BaseManual2023"])
+
+    oldHCHPCounter = AboCounter("HCHP sur Tarifs 2023")
+    oldHCHPCounter.configureHeuresCreuses(HC)
+    oldHCHPCounter.configurePricingPlans(pricings["HCHPManual2023"])
+
+    oldtempoCounter = AboCounter("Tempo sur Tarifs 2023")
+    oldtempoCounter.setCalendrierJours(TempoCalGetter())
+    oldtempoCounter.configureHeuresCreuses(HC)
+    oldtempoCounter.configurePricingPlans(pricings["TEMPOManual2023"])
+
+
     baseCounter = AboCounter("Base")
-    baseCounter.configurePricingPlans(pricings["Base"])
+    baseCounter.configurePricingPlans(pricings["BaseManual2024"]) #Utiliser Base pour aller chercher la donnée depuis un fichier peut être automatiquement à jour 
+
+    HCHPCounter = AboCounter("HCHP")
+    HCHPCounter.configureHeuresCreuses(HC)
+    HCHPCounter.configurePricingPlans(pricings["HCHPManual2024"]) #Utiliser HCHP pour aller chercher la donnée depuis un fichier peut être automatiquement à jour 
 
     tempoCounter = AboCounter("Tempo")
     tempoCounter.setCalendrierJours(TempoCalGetter())
     tempoCounter.configureHeuresCreuses(HC)
-    tempoCounter.configurePricingPlans(pricings["TEMPO"])
-    
-    HCHPCounter = AboCounter("HCHP")
-    HCHPCounter.configureHeuresCreuses(HC)
-    HCHPCounter.configurePricingPlans(pricings["HCHP"])
+    tempoCounter.configurePricingPlans(pricings["TEMPOManual2024"]) #Utiliser TEMPO pour aller chercher la donnée depuis un fichier peut être automatiquement à jour 
 
     # On disable le temps de faire ca correctement
     #ZenCounter = AboCounter("Zen")
@@ -165,7 +179,7 @@ def doStuff(appContext, puissance, enedisFileStream="", edfFileStream=""):
     #ZenCounter.configureHeuresCreuses(HCZenFlex)
     #ZenCounter.configurePricingPlans(pricings["ZEN"])
 
-    priceCounters = [baseCounter, tempoCounter, HCHPCounter ]#ZenCounter]
+    priceCounters = [oldbaseCounter, oldtempoCounter, oldHCHPCounter, baseCounter, tempoCounter, HCHPCounter,  ]#ZenCounter]
     for counter in priceCounters:
         counter.setPuissance(puissance)
 
