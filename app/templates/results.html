@@ -1,0 +1,436 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Comparatif de Simulations de Prix d'Électricité</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f5f5f5;
+            color: #333;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 5px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        h1 {
+            text-align: center;
+            margin-bottom: 20px;
+            color: #003399; /* EDF blue color */
+        }
+        .consoOptions {
+            border: none;
+            display: flex;
+            flex-direction: row;
+            justify-content: flex-start;
+            break-before: always;
+            margin: 0 0 3em 0;
+        }
+
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        .comparison-table th, .comparison-table td {
+            padding: 10px;
+            text-align: center;
+            border-bottom: 1px solid #ddd;
+        }
+        .comparison-table th {
+            background-color: #f5f5f5;
+            font-weight: bold;
+            color: #003399; /* EDF blue color */
+        }
+        .comparison-table td {
+            vertical-align: middle;
+        }
+        .total-column {
+            font-size: 1.2em;
+            color: #009933; /* EDF green color */
+        }
+        .details-cell {
+            cursor: pointer;
+            color: #003399; /* EDF blue color */
+        }
+        .details-popup {
+            display: none;
+            position: absolute;
+            background-color: white;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            padding: 10px;
+            z-index: 1;
+        }
+        .error-cell {
+            color: red;
+            font-weight: bold;
+        }
+        #chartContainer {
+            width: 100%;
+            height: 300px;
+            margin-top: 20px;
+        }
+        @media screen and (max-width: 768px) {
+            .container {
+                padding: 10px;
+            }
+            h1 {
+                font-size: 24px;
+            }
+            .comparison-table th,
+            .comparison-table td {
+                padding: 8px;
+            }
+            #chartContainer {
+                height: 300px;
+            }
+        }
+    </style>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+    <script>
+        function showDetailsPopup(elementId) {
+            var popup = document.getElementById(elementId);
+            popup.style.display = 'block';
+        }
+
+        function hideDetailsPopup(elementId) {
+            var popup = document.getElementById(elementId);
+            popup.style.display = 'none';
+        }
+        function generatePriceChart(ctx) {
+            return new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: [{% for simulation in simulations %}"{{ simulation.name }}",{% endfor %}],
+                    datasets: [
+                    {
+                        label: 'Prix Abonnement',
+                        data: [{% for simulation in simulations %}{{ simulation.getTotalAbo() }},{% endfor %}],
+                        backgroundColor: '#009933', /* EDF green color */
+                    },
+                    {
+                        label: 'Prix Consommation',
+                        data: [{% for simulation in simulations %}{{ simulation.getTotalConso() }},{% endfor %}],
+                        backgroundColor: '#FFCC33', /* EDF yellow color */
+                    }]
+                },
+                options: {
+                    scales: {
+                        x: {
+                            stacked: true
+                        },
+                        y: {
+                            stacked: true,
+                            beginAtZero: true,
+                            title: {
+                                display: true,
+                                text: 'Prix (€)'
+                            }
+                        }
+                    }
+                }
+            });
+        }
+        function generateOriginChart(ctx) {
+            return new Chart(ctx, {
+                type: 'pie',
+                data: {
+                    labels: Object.keys({{ earthWatcher.getTotalDetailedConso() | tojson | safe }}),
+                    datasets: [
+                    {
+                        label: 'Energie Consommée',
+                        data: Object.values({{ earthWatcher.getTotalDetailedConso() | tojson | safe }}),
+                        backgroundColor: Object.values({{ earthWatcher.getColorList() | tojson | safe }}),
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                    legend: {
+                        position: 'top',
+                    },
+                    title: {
+                        display: true,
+                        text: 'Origine de votre energie'
+                    }
+                    }
+                },
+            });
+        }
+
+        function generateMonthlyOriginChart(ctx) {
+            return new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: Object.keys({{ earthWatcher.getMonthlyDetailedConso()["Nucleaire"] | tojson | safe }}),
+                    datasets: [
+                    {% for origin, volume in earthWatcher.getMonthlyDetailedConso().items() %}
+                    {
+                        label: "{{origin}}",
+                        data: Object.values({{volume | tojson | safe }}),
+                        backgroundColor: "{{earthWatcher.getColorByOrigin(origin)}}",
+                    },
+                    {% endfor %}
+                ]
+                },
+                options: {
+                    plugins: {
+                    title: {
+                        display: true,
+                        text: 'Origine de votre Energie - vue mensuelle'
+                    },
+                    },
+                    responsive: true,
+                    scales: {
+                    x: {
+                        stacked: true,
+                    },
+                    y: {
+                        stacked: true
+                    }
+                    }
+                }
+            });
+        }
+
+        document.addEventListener('DOMContentLoaded', function () {
+            var priceChartHtmlctx = document.getElementById('priceChart').getContext('2d');
+            var monthlyOriginChartHtmlctx = document.getElementById('monthlyOriginChart').getContext('2d');
+            var originChartHtmlctx = document.getElementById('originChart').getContext('2d');
+
+            var priceChart = generatePriceChart(priceChartHtmlctx)
+            var originChart = generateOriginChart(originChartHtmlctx)
+            var monthlyOriginChart =  generateMonthlyOriginChart(monthlyOriginChartHtmlctx)
+        });
+
+        google.charts.load("current", {packages:["calendar"]});
+        google.charts.setOnLoadCallback(drawCharts);
+
+        function drawTempoCalendarHeatMap(){
+            var dataTable = new google.visualization.DataTable();
+            dataTable.addColumn({ type: 'date', id: 'Date' });
+            dataTable.addColumn({ type: 'number', id: 'Tempo' });
+
+            dataTable.addRows([
+            {% for parsedDate, tempoType in tempo.getTimeRange(earthWatcher.getMinDate(), earthWatcher.getMaxDate()).items() %}
+                [ new Date("{{parsedDate}}"), {{tempoType}}],
+            {% endfor %}
+                ]);
+
+            var tempoDaysChart = new google.visualization.Calendar(document.getElementById('tempo_calendarheatmap'));
+
+            var options = {
+                title: "Répartition des jours Bleu/Blanc/Rouge",
+                height: 350,
+            };
+
+            tempoDaysChart.draw(dataTable, options);
+        }
+        function drawDailyConsoHeatMap(type="Total"){
+            var dataTableConso = new google.visualization.DataTable();
+            dataTableConso.addColumn({ type: 'date', id: 'Date' });
+            dataTableConso.addColumn({ type: 'number', id: 'Consommation' });
+
+            if(type=="Total"){
+                dataTableConso.addRows([
+                {% for simu in simulations %}
+                    {% if simu.name == "Tempo" %}
+                        {% for parsedDate, conso in simu.getDetailedConso().items() %}
+                            [ new Date("{{parsedDate}}"), {{conso["Total"]| round(2)}}],
+                        {% endfor %}
+                    {% endif %}
+                {% endfor %}
+                ]);
+            }else if (type == "HC"){
+                dataTableConso.addRows([
+                {% for simu in simulations %}
+                    {% if simu.name == "Tempo" %}
+                        {% for parsedDate, conso in simu.getDetailedConso().items() %}
+                            [ new Date("{{parsedDate}}"), {{conso["HC"]| round(2)}}],
+                        {% endfor %}
+                    {% endif %}
+                {% endfor %}
+                ]);
+            }else if (type == "HP"){
+                dataTableConso.addRows([
+                {% for simu in simulations %}
+                    {% if simu.name == "Tempo" %}
+                        {% for parsedDate, conso in simu.getDetailedConso().items() %}
+                            [ new Date("{{parsedDate}}"), {{conso["HP"]| round(2)}}],
+                        {% endfor %}
+                    {% endif %}
+                {% endfor %}
+                ]);
+            }
+            else{
+                dataTableConso.addRows([
+                {% for simu in simulations %}
+                    {% if simu.name == "Tempo" %}
+                        {% for parsedDate, conso in simu.getDetailedConso().items() %}
+                            [ new Date("{{parsedDate}}"), {{conso["Tarif"] | round(2)}}],
+                        {% endfor %}
+                    {% endif %}
+                {% endfor %}
+                ]);
+            }
+
+
+            var dailyConsoChart = new google.visualization.Calendar(document.getElementById('tempo_consoheatmap'));
+
+            options = {
+                title: "Vision Journalière de votre consommation d'électricité",
+                height: 350,
+            };
+
+            dailyConsoChart.draw(dataTableConso, options);
+        }
+        function drawCharts() {
+            drawTempoCalendarHeatMap();
+            drawDailyConsoHeatMap();
+        }
+        function refreshDailyConsoHeatMap(src) {
+            drawDailyConsoHeatMap(src.value);
+        }
+        function showFullENR(){
+            var explainBlock = document.getElementById("explainFullENR");
+            var explainCheckbox = document.getElementById("full-enr");
+            if (explainCheckbox.checked){
+                explainBlock.style.display="block";
+            }
+            else {
+                explainBlock.style.display="none";
+            }
+        }
+    </script>
+</head>
+<body>
+    <div class="container">
+        <h1>Comparatif de Simulations de Prix d'Électricité</h1>
+        <p>Periode : {{ earthWatcher.getMinDate() }} à {{ earthWatcher.getMaxDate() }}</p>
+        {% if test == True: %}
+        <div >Aucun jeu de test fourni, exécution avec un jeu de test d'exemple</div>
+        {% endif %}
+
+        <div class="table-responsive">
+            <table class="comparison-table">
+                <tr>
+                    <th>Nom</th>
+                    <th>kwh</th>
+                    <th class="total-column">Prix Total</th>
+                    <th>Prix Abonnement</th>
+                    <th>Prix Consommation</th>
+                    <th>Détails</th>
+                </tr>
+                {% for simulation in simulations %}
+                <tr>
+                    <td>{{ simulation.name }}</td>
+                    <td>{{ simulation.getTotalConsommatedWatts() }}</td>
+                    <td class="total-column">{{ simulation.getTotal() }}</td>
+                    <td>{{ simulation.getTotalAbo() }}</td>
+                    <td>{{ simulation.getTotalConso() }}</td>
+                    <td class="details-cell" onclick="showDetailsPopup('detailsPopup{{ loop.index }}')">Voir les détails</td>
+                </tr>
+                <div class="details-popup" id="detailsPopup{{ loop.index }}" style="display: none;">
+                    <p><strong>Détail Consommation Heures Pleines(€):</strong> {{ simulation.getDetails()["HP"] }}</p>
+                    <p><strong>Détail Consommation Heures Creuses(€):</strong> {{ simulation.getDetails()["HC"] }}</p>
+                    <p><strong>Détail Consommation Jours Bleus(€):</strong> {{ simulation.getDetails()["BLUE"] }}</p>
+                    <p><strong>Détail Consommation Jours Blancs(€):</strong> {{ simulation.getDetails()["WHITE"] }}</p>
+                    <p><strong>Détail Consommation Jours Rouges(€):</strong> {{ simulation.getDetails()["RED"] }}</p>
+                    {% if simulation.errors %}
+                    <p><strong>Erreurs:</strong></p>
+                    <ul>
+                        {% for error in simulation.errors %}
+                        <li>{{ error }}</li>
+                        {% endfor %}
+                    </ul>
+                    {% endif %}
+                    <button onclick="hideDetailsPopup('detailsPopup{{ loop.index }}')">Fermer</button>
+                </div>
+                {% endfor %}
+            </table>
+        </div>
+        <div id="chartContainer">
+            <canvas id="priceChart"></canvas>
+        </div>
+
+        <div id="tempo_calendarheatmap" style="width: 1000px; height: 350px;"></div>
+        <div id="tempo_consoheatmap" style="width: 1000px; height: 350px;"></div>
+        <p>Choix d'affichage de Consommation Journalière</p>
+        <div id="consoChoiceContainer" name="consoChoiceContainer" class="consoOptions">
+            <div id="consoTotal" class="floatBlock">
+                <label for="consoTotalChoice"> <input id="consoTotalChoice" onchange="refreshDailyConsoHeatMap(this)" name="consoType" type="radio" value="Total" checked />  kWh en HC+HP  </label>
+            </div>
+            <div id="consoHC" class="floatBlock">
+                <label for="consoHCChoice"> <input id="consoHCChoice" onchange="refreshDailyConsoHeatMap(this)" name="consoType" type="radio" value="HC" /> kWh en HC </label>
+            </div>
+            <div id="consoHP" class="floatBlock">
+                <label for="consoHPChoice"> <input id="consoHPChoice" onchange="refreshDailyConsoHeatMap(this)" name="consoType" type="radio" value="HP"/> kWh en HP </label>
+            </div>
+            <div id="consoTarif" class="floatBlock">
+                <label for="consoTarifChoice"> <input id="consoTarifChoice" onchange="refreshDailyConsoHeatMap(this)" name="consoType" type="radio" value="Tarif"/> € </label>
+            </div>
+        </div>
+
+        <h1>Analysons votre Impact Carbone & l'origine de votre consommation </h1>
+        <p>En comparant votre consommation précise avec les données de productions, voici une vision précise de ce qui à éclairé votre maison</p>
+        <p>Si vous consommez pendant les pics solaires et éoliens, leur proportion sera plus grande</p>
+        <p>Si vous consommez pendant les pics fossiles (🤢 !), leur proportion sera plus grande</p>
+        <div>
+            <input type="checkbox" id="full-enr" name="full-enr" onclick="showFullENR()" />
+            <label for="full-enr">Je tiens à préciser que j'ai une offre 100% Electricité Verte</label>
+        </div>
+        <div id="explainFullENR" style="display:none">
+            <p>Super, mais cela ne change rien à l'origine de votre éléctricité</p>
+            <p>Lorsque vos appareils sont alimentés par l'électricité provenant du réseau, les électrons ne sont pas triés à l'entrée</p>
+            <p>Mais alors ça sert à quoi ?</p>
+            <p>Beh en gros vous obligez votre fournisseur à acheter une garantie d'origine à quelqu'un qui produit de l'énergie propre (l'Islande par exemple), pour dire que c'est la votre.</p>
+            <p>Une garantie d'origine est un document électronique servant uniquement à prouver au client final qu'une part ou quantité déterminée d'énergie à été produite à partir de sources renouvelables ou par cogénération</p>
+            <p>Ca donne bonne conscience, mais c'est pas ca qui va réellement vous chauffer cet hiver</p>            
+        </div>
+
+        
+        <div class="table-responsive">
+            <table class="comparison-table">
+                <tr>
+                    <th>kwh</th>
+                    <th>Taux d'erreur</th>
+                    <th> Total CO2 (kg)</th>
+                    {% for origin, volume in earthWatcher.getTotalDetailedConso().items() %}
+                    <th> Consommation {{origin}} </th>
+                    {% endfor %}
+                </tr>
+                <tr>
+                    <td>{{ earthWatcher.getTotalConso() }}</td>
+                    <td>{{ earthWatcher.getFiabilité() }}</td>
+                    <td>{{ earthWatcher.getCO2()}}</td>
+                    {% for origin, volume in earthWatcher.getTotalDetailedConso().items() %}
+                    <th> {{volume | round(0)}} ({{(volume/earthWatcher.getTotalConso()*100) | round(2)}}%)</th>
+                    {% endfor %}
+                </tr>
+            </table>
+        </div>
+        <div id="explainCO2" >
+            <p>Pour rappel, les objectifs climatiques ciblent nous atteignons les 2TeqCO2 par an par habitant</p>
+            <p>Pour y arriver : il faudra réduire nos usages, et électrifier un maximum de choses (avec une éléctricité décarbonée)</p>
+            <p>Fini les chaudières au gaz/fioul, fini l'essence et le diesel. Bonjour l'électricité bas-carbone !</p>
+            <p>Il ne faut pas avoir peur de faire monter votre consommation électrique, tant que cela permet de réduire votre consommation d'énergies fossiles.</p>
+        </div>
+        <div id="chartContainer">
+            <canvas id="monthlyOriginChart"></canvas>
+        </div>
+        <div id="chartContainer">
+            <canvas id="originChart"></canvas>
+        </div>
+    </div>
+</body>
+</html>

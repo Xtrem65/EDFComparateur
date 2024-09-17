@@ -1,0 +1,7 @@
+flask
+requests
+pandas
+PyPDF2
+pyopenssl
+redis
+flask-cors
